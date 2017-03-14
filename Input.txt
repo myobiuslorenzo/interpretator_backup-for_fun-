@@ -1,0 +1,10 @@
+int main(){
+cinout<<57;
+
+
+return 0;
+}
+
+
+
+
