@@ -1,6 +1,8 @@
 #include "interface.h"
 #include "includes.h"
 
+//hi
+
 void Poliz::Write() {
 	ifstream ifs("InputPoliz.txt");
 
