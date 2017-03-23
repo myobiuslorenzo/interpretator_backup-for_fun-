@@ -1,7 +1,6 @@
 #include "interface.h"
 #include "includes.h"
-
-//hi
+#include <sstream>
 
 void Poliz::Write() {
 	ifstream ifs("InputPoliz.txt");
@@ -40,7 +39,7 @@ void Poliz::Cinout(char state) {
 		{
 			string s;
 			while (s.find(";") != -1 || s.find("}") != -1) {
-
+				
 			}
 
 
@@ -93,6 +92,27 @@ void Poliz::push(bool d) {
 void Poliz::push(string d) {
 	pol.push_back(elemOfPoliz(d));
 }
+string Poliz::get(Var& v) {
+	stringstream ss;
+	switch (v.t) {
+	case INT:
+		ss<< v.i;
+		break;
+	case DOUBLE:
+		ss << v.d;
+		break;
+	case LONG_DOUBLE:
+		ss << v.ldd;
+		break;
+	case CHAR:
+		ss << v.c;
+		break;
+	case BOOL:
+		ss << v.b;
+		break;
+	}
+}
+
 template <class T>
 void push_to_vector_from_file(vector<T>& Fnaf, string naf) {
 	ifstream one.open(naf);
@@ -103,14 +123,27 @@ void push_to_vector_from_file(vector<T>& Fnaf, string naf) {
 	}
 	one.close();
 }
-template <class T>
-bool find(T s, vector<T>& q) {
+bool Poliz::find(string s, vector<string>& q) {
 	for (auto t : q)if (t == s)return true;
 	else return false;
 }
-
-void scan(vector<elemOfPoliz>& pol) {
-	//vector<string> rightradical;//калькулятор сам же разберется с ассоциативностью или всеж нет?
+Var Poliz::find(string s) {
+	for(auto t:var) {
+		if (t.first == s)return t.second;
+	}
+}
+void Poliz::assign(elemOfPoliz& p, elemOfPoliz& q) {
+	for (auto t : var) {
+		if (t.first == p.i.name)t.second = find(q.i.name);
+	}
+}
+void Poliz::assign(elemOfPoliz& p, Var& q) {
+	for (auto t : var) {
+		if (t.first == p.i.name)t.second = q;
+	}
+}
+void Poliz::scan() {
+	//vector<string> rightradical;//калькулятор разберется сам с правоассоциативными операциями ?
 	vector<string> unary_oper;
 	//push_to_vector_from_file(rightradical, "rightradical.txt");
 	push_to_vector_from_file(unary_oper, "unary_oper.txt");
@@ -129,11 +162,16 @@ void scan(vector<elemOfPoliz>& pol) {
 			if (!find(pol[i].oper, unary_oper)) {
 				auto p = stack.pop();
 				auto q = stack.pop();
-				//
-				auto elem = precalc.calculate(p.i.name + pol[i].oper + q.i.name);
-				//
+				//find in map
+				auto x=find(p.i.name);
+				auto y=find(q.i.name);
+				string r1= get(x),r2=get(y);
+				ld elem;
+
+			    elem = precalc.calculate(r1 + pol[i].oper + r2);
+
 				if (pol[i].oper == "=") {
-					//reverse current value of var in TID
+					assign(p, q);
 				}
 				Ident TM(elem);
 				elemOfPoliz W(TM);
@@ -141,54 +179,61 @@ void scan(vector<elemOfPoliz>& pol) {
 			}
 			else {
 				if (pol[i].oper == "<<") {
+					Var x = find(pol[i].i.name);
 					switch (pol[i].i.t) {
 					case INT:
-						cout << pol[i].i.i;
+						cout << x.i;
 						break;
 					case DOUBLE:
-						cout << pol[i].i.d;
+						cout << x.d;
 						break;
 					case LONG_DOUBLE:
-						cout << pol[i].i.ldd;
+						cout << x.ldd;
 						break;
 					case BOOL:
-						cout << pol[i].i.b;
+						cout << x.b;
 						break;
 					case CHAR:
-						cout << pol[i].i.c;
+						cout << x.c;
 						break;
 					case STRING:
 						cout << pol[i].i.name;
 						break;
 					}
-					//revese smth in TID
 				}
 				else if (pol[i].oper == ">>") {
+					Var z;
 					switch (pol[i].i.t) {
 					case INT:
-						cin >> pol[i].i.i;
+						cin >> z.i;
+						assign(pol[i], z);
 						break;
 					case DOUBLE:
-						cin >> pol[i].i.d;
+						cin >> z.d;
+						assign(pol[i], z);
 						break;
 					case LONG_DOUBLE:
-						cin >> pol[i].i.ldd;
+						cin >> z.ldd;
+						assign(pol[i], z);
 						break;
 					case BOOL:
-						cin >> pol[i].i.b;
+						cin >> z.b;
+						assign(pol[i], z);
 						break;
 					case CHAR:
-						cin >> pol[i].i.c;
+						cin >> z.c;
+						assign(pol[i], z);
 						break;
 					case STRING:
 						cin >> pol[i].i.name;
 						break;
 					}
-					//revese smth in TID?
 				}
 				else {
 					auto p = stack.pop();
-					auto elem = precalc.calculate(pol[i].oper + p.i.name);
+					auto x = find(p.i.name);
+					string r1 = get(x);
+					elem = precalc.calculate(pol[i].oper + r1);
 					Ident TM(elem);
 					elemOfPoliz W(TM);
 					stack.push(W);

@@ -1,8 +1,8 @@
 #include "includes.h"
 
 enum typeLex {SERV, IDENT, OPER, PUNCT, CONST, DIFF, END}; //служебные, идентификаторы(имена), операции,пунктуация, константы, иное
-enum typeIdent{INT, DOUBLE, CHAR, BOOL};
-const int MAX_LEX = 9999;//а если текст входной программы будет очень большим? Хотя нам сейчас это не слишком важно.
+enum typeIdent{INT, DOUBLE, CHAR, BOOL, STRING, LONG_DOUBLE};
+enum typeElemOfPoliz { IDENT, CONST, OPER, TRANS, RETRANS};//если писать это в структуре, он за тип берет typelex или ещё что-то....
 
 ////////////////////////Struct of data///////////////////////////////////
 struct Lexeme{ 
@@ -44,6 +44,9 @@ struct Ident {
 	int i;
 	char c;
 	bool b;
+	long double ldd;
+
+	int adr;
 
 	Ident() {};
 	Ident(string s, double d): name(s), d(d), t(DOUBLE) {};
@@ -51,6 +54,7 @@ struct Ident {
 	Ident(string s, char d) : name(s), c(d), t(CHAR) {};
 	Ident(string s, bool d) : name(s), b(d), t(BOOL) {};
 	Ident(double d) : name("CONST"), d(d), t(DOUBLE) {};
+	Ident(long double d) : name("CONST"), ldd(d), t(LONG_DOUBLE) {}; //because calulator return long double
 	Ident(int d) : name("CONST"), i(d), t(INT) {};
 	Ident(char d) : name("CONST"), c(d), t(CHAR) {};
 	Ident(bool d) : name("CONST"), b(d), t(BOOL) {};
@@ -64,17 +68,40 @@ struct Var {
 	int i;
 	char c;
 	bool b;
+	ld ldd;
 };
 
+template <class T>
+struct Stack {//stack of types, operators and operands
+	vector<T> st;
+	void push(T& l) {
+		st.push_back(l);
+	}
+	T pop() {
+		T t = st[st.size() - 1];
+		st.pop_back();
+		return t;
+	}
+	bool is_empty() {
+		return st.size() == 0;
+	}
+	Lexeme top() {
+		return st[st.size() - 1];
+	}
+	void clear() {
+		st.clear();
+	}
+};
+
+
 struct elemOfPoliz {
-	enum typeElemOfPoliz { IDENT, CONST, OPER, TRANS };
 	typeElemOfPoliz t;
 	Ident i;
 	string oper;
 
 	elemOfPoliz(string o)//dangerous!!!!!! 
 	{
-		t = OPER;
+		t = OPER; 
 		oper = o;
 	}
 
@@ -126,24 +153,6 @@ struct Error{
 	}
 };
 
-struct Stack {//stack of types, operators and operands
-	vector<Lexeme> st;
-	void push(Lexeme& l) {
-		st.push_back(l);
-	}
-	Lexeme pop() {
-		Lexeme t = st[st.size() - 1];
-		st.pop_back();
-		return t;
-	}
-	bool is_empty() {
-		return st.size() == 0;
-	}
-	Lexeme top() {
-		return st[st.size() - 1];
-	}
-};
-
 /////////////////////////Solution struct//////////////////////////////////
 struct LecsAnalyzer{
     BoxOfLexeme BOL; //массив с лексемами. Создаешь объект Lexeme и вызываешь BOL.Add(объект лексемы)
@@ -159,9 +168,8 @@ struct LecsAnalyzer{
 
 struct semantic_analyzer {
 	bool find(map<Lexeme, bool>& a, Lexeme& ident);
-	void push_name_in_set(Lexeme name);
+	void push_name_in_set(Lexeme& name);
 	void find_name(Lexeme name);
-	void push_name(Lexeme& ident);
 
 	stack<set<string> > STACK_FOR_SET_OF_IDENT;
 	map <Ident, bool> TID_FOR_IDENT;
@@ -169,9 +177,10 @@ struct semantic_analyzer {
 };
 
 struct Poliz {
-	map<string, Var>var;
+	map<string, Var> var;
 	vector<elemOfPoliz>pol;
-	
+	string get(Var& v);
+	Var find(string s);
 	void push(elemOfPoliz);
 	void push(string s, double d);
 	void push(string s, int d);
@@ -186,6 +195,11 @@ struct Poliz {
 	void Condition();
 	void Cinout(char state);
 	void Assignment();
+
+	void scan();
+	void assign(elemOfPoliz& p, elemOfPoliz& q);
+	void assign(elemOfPoliz& p, Var& q);
+	bool find(string s, vector<string>& q);
 };
 
 
@@ -195,8 +209,8 @@ struct Precalculator {
 	ld calculate(string);
 	ld calculate();
 	void calculation(Lexeme& res, Lexeme& op1, Lexeme& oper, Lexeme& op2);
-	void checkop(Lexeme& op1, Lexeme& oper, Lexeme& op2);
-	void checknot(Lexeme& op, Lexeme& sigh);
+	//void checkop(Lexeme& op1, Lexeme& oper, Lexeme& op2);
+	//void checknot(Lexeme& op, Lexeme& sigh);
 };
 
 struct syntax_analyzer {
