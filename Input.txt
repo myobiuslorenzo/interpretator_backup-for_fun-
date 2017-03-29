@@ -1,5 +1,5 @@
 int main(){
-cinout<<57;
+4+3-9+3;
 
 
 return 0;

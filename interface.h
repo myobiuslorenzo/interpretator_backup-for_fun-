@@ -2,7 +2,7 @@
 
 enum typeLex {SERV, IDENT, OPER, PUNCT, CONST, DIFF, END}; //служебные, идентификаторы(имена), операции,пунктуация, константы, иное
 enum typeIdent{INT, DOUBLE, CHAR, BOOL, STRING, LONG_DOUBLE};
-enum typeElemOfPoliz { IDENT, CONST, OPER, TRANS, RETRANS};//если писать это в структуре, он за тип берет typelex или ещё что-то....
+
 
 ////////////////////////Struct of data///////////////////////////////////
 struct Lexeme{ 
@@ -29,7 +29,7 @@ struct Lexeme{
     typeLex t;    //тип, описание в inludes.h
 	int coord; //позиция в строке
 	int line=1;//на какой строке оно находится
-	bool strbool = false;
+	bool strbool = false;//является ли строка константной строкой ("привет" - оно самое)
 	bool operator <(Lexeme q)const {
 		if (coord < q.coord)return true;
 		else return false;
@@ -95,6 +95,7 @@ struct Stack {//stack of types, operators and operands
 
 
 struct elemOfPoliz {
+	enum typeElemOfPoliz { IDENT, CONST, OPER, TRANS, RETRANS };//если писать это в структуре, он за тип берет typelex или ещё что-то....
 	typeElemOfPoliz t;
 	Ident i;
 	string oper;
@@ -168,7 +169,7 @@ struct LecsAnalyzer{
 
 struct semantic_analyzer {
 	bool find(map<Lexeme, bool>& a, Lexeme& ident);
-	void push_name_in_set(Lexeme& name);
+	void push_name_in_set(Lexeme name);
 	void find_name(Lexeme name);
 
 	stack<set<string> > STACK_FOR_SET_OF_IDENT;
@@ -177,6 +178,7 @@ struct semantic_analyzer {
 };
 
 struct Poliz {
+	enum typeElemOfPoliz { IDENT, CONST, OPER, TRANS, RETRANS };//если писать это в структуре, он за тип берет typelex или ещё что-то....
 	map<string, Var> var;
 	vector<elemOfPoliz>pol;
 	string get(Var& v);
@@ -217,6 +219,7 @@ struct syntax_analyzer {
 	semantic_analyzer SemA;
 	Poliz pol;
 	Precalculator precalc;
+	bool exprIsNow = false, assigment =false;
 
 	ifstream ifs;
 	vector<Lexeme> BOL_S;
@@ -232,6 +235,7 @@ struct syntax_analyzer {
 		ifs.close();
 	}
 
+	void addToExpr();
 	void getc(Lexeme& L);
 	void watch(Lexeme& t,int shift);
 	void program();
