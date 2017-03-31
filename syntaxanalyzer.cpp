@@ -166,7 +166,10 @@ void syntax_analyzer::expression() {
 		expression_1();
 	}
 
-	pol.push(Ident((double)precalc.calculate())); //очистка сделана в прекалке
+	//pol.push(Ident((double)precalc.calculate())); //очистка сделана в прекалке
+
+
+	pol.push(precalc.expr);
 	exprIsNow = false;
 
 	if (assigment) {
@@ -492,8 +495,10 @@ void syntax_analyzer::special_operator() {
 	}
 	else for_operator();
 }
-void syntax_analyzer::dowhile_operator() {
+void syntax_analyzer::dowhile_operator() { //не смущайся, все норм, оператор - {...}
 	//don't need to check "do"existence
+	pushExprInPol = false;
+
 	Operator();
 	if (lex.s != "while")throw(Error("while expected", lex.line));
 	getc(lex);
@@ -504,6 +509,8 @@ void syntax_analyzer::dowhile_operator() {
 	getc(lex);
 	if (lex.s != ";")throw(Error("; expected", lex.line));
 	getc(lex);
+
+	pushExprInPol = true;
 }
 void syntax_analyzer::for_operator() {
 	if (lex.s != "for") throw(Error("for expected", lex.line));

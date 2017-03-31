@@ -99,12 +99,12 @@ struct elemOfPoliz {
 	typeElemOfPoliz t;
 	vector<Lexeme> expr;
 	Ident i;
-	string operOrName;
+	string oper;
 
 	elemOfPoliz(string o)//dangerous!!!!!! 
 	{
 		t = OPER; 
-		operOrName = o;
+		oper = o;
 	}
 
 	elemOfPoliz(Ident id) : i(id), t(IDENT) {};
@@ -116,7 +116,10 @@ struct elemOfPoliz {
 	elemOfPoliz(int d) : i(d), t(CONST) {};
 	elemOfPoliz(char d) : i(d), t(CONST) {};
 	elemOfPoliz(bool d) : i(d), t(CONST) {};
-	elemOfPoliz(string s, typeElemOfPoliz type) : operOrName(s), t(type) {};
+	elemOfPoliz(string s, typeElemOfPoliz type) : oper(s), t(type) {};
+	elemOfPoliz(typeElemOfPoliz type) : t(type) {};
+	elemOfPoliz(vector<Lexeme> v) : expr(expr) {};
+	
 };
 
 struct BoxOfLexeme{
@@ -180,7 +183,9 @@ struct semantic_analyzer {
 };
 
 struct Poliz {
-	enum typeElemOfPoliz { IDENT, CONST, OPER, TRANS, RETRANS, EXPR };//если писать это в структуре, он за тип берет typelex или ещё что-то....
+	enum typeElemOfPoliz { IDENT, CONST, OPER, TRANS, TRANSONLIE, EXPR,  };//если писать это в структуре, он за тип берет typelex или ещё что-то.... 
+																		   //TRANSONLIE - ПЕРЕХОД ПО ЛЖИ
+
 	map<string, Var> var;
 	vector<elemOfPoliz>pol;
 	string get(Var& v);
@@ -195,6 +200,9 @@ struct Poliz {
 	void push(char d);
 	void push(bool d);
 	void push(string d);
+	void push(elemOfPoliz::typeElemOfPoliz);
+	void push(vector<Lexeme>);
+
 	void Write();
 	void Condition();
 	void Cinout(char state);
@@ -221,7 +229,7 @@ struct syntax_analyzer {
 	semantic_analyzer SemA;
 	Poliz pol;
 	Precalculator precalc;
-	bool exprIsNow = false, assigment =false;
+	bool exprIsNow = false, assigment =false, pushExprInPol=true;
 
 	ifstream ifs;
 	vector<Lexeme> BOL_S;
