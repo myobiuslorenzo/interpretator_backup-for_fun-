@@ -49,7 +49,7 @@ void syntax_analyzer::getc(Lexeme& L) {
 }
 
 void syntax_analyzer::addToExpr() {
-	precalc.expr += lex.s;
+	precalc.expr.push_back(lex);
 }
 
 void syntax_analyzer::watch(Lexeme& t,int shift) {

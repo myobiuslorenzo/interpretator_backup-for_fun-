@@ -95,26 +95,28 @@ struct Stack {//stack of types, operators and operands
 
 
 struct elemOfPoliz {
-	enum typeElemOfPoliz { IDENT, CONST, OPER, TRANS, RETRANS };//если писать это в структуре, он за тип берет typelex или ещё что-то....
+	enum typeElemOfPoliz { IDENT, CONST, OPER, TRANS, RETRANS, EXPR };//если писать это в структуре, он за тип берет typelex или ещё что-то....
 	typeElemOfPoliz t;
+	vector<Lexeme> expr;
 	Ident i;
-	string oper;
+	string operOrName;
 
 	elemOfPoliz(string o)//dangerous!!!!!! 
 	{
 		t = OPER; 
-		oper = o;
+		operOrName = o;
 	}
 
-	elemOfPoliz(Ident id) : i(id) {};
-	elemOfPoliz(string s, double d) : i(s, d) {};
-	elemOfPoliz(string s, int d) : i(s, d) {};
-	elemOfPoliz(string s, char d) : i(s, d) {};
-	elemOfPoliz(string s, bool d) : i(s, d) {};
-	elemOfPoliz(double d) : i(d) {};
-	elemOfPoliz(int d) : i(d) {};
-	elemOfPoliz(char d) : i(d) {};
-	elemOfPoliz(bool d) : i(d) {};
+	elemOfPoliz(Ident id) : i(id), t(IDENT) {};
+	elemOfPoliz(string s, double d) : i(s, d), t(IDENT) {};
+	elemOfPoliz(string s, int d) : i(s, d), t(IDENT) {};
+	elemOfPoliz(string s, char d) : i(s, d), t(IDENT) {};
+	elemOfPoliz(string s, bool d) : i(s, d), t(IDENT) {};
+	elemOfPoliz(double d) : i(d), t(CONST) {};
+	elemOfPoliz(int d) : i(d), t(CONST) {};
+	elemOfPoliz(char d) : i(d), t(CONST) {};
+	elemOfPoliz(bool d) : i(d), t(CONST) {};
+	elemOfPoliz(string s, typeElemOfPoliz type) : operOrName(s), t(type) {};
 };
 
 struct BoxOfLexeme{
@@ -178,7 +180,7 @@ struct semantic_analyzer {
 };
 
 struct Poliz {
-	enum typeElemOfPoliz { IDENT, CONST, OPER, TRANS, RETRANS };//если писать это в структуре, он за тип берет typelex или ещё что-то....
+	enum typeElemOfPoliz { IDENT, CONST, OPER, TRANS, RETRANS, EXPR };//если писать это в структуре, он за тип берет typelex или ещё что-то....
 	map<string, Var> var;
 	vector<elemOfPoliz>pol;
 	string get(Var& v);
@@ -206,7 +208,7 @@ struct Poliz {
 
 
 struct Precalculator {
-	string expr;
+	vector<Lexeme> expr;
 
 	ld calculate(string);
 	ld calculate();
