@@ -159,10 +159,12 @@ void syntax_analyzer::expression() {
 		getc(lex);
 		//SEA.checkop(tmp, lex);
 		exprIsNow = true;
+		addToExpr();
 		expression();
 	}
 	else {
 		exprIsNow = true;
+		addToExpr();
 		expression_1();
 	}
 
