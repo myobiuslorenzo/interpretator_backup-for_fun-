@@ -117,7 +117,7 @@ struct elemOfPoliz {
 	elemOfPoliz(int d) : i(d), t(CONST) {};
 	elemOfPoliz(char d) : i(d), t(CONST) {};
 	elemOfPoliz(bool d) : i(d), t(CONST) {};
-	elemOfPoliz(string s, typeElemOfPoliz type) : oper(s), t(type) {};
+	elemOfPoliz(string s, typeElemOfPoliz type) : i(s), t(type) {}; //not for oper
 	elemOfPoliz(typeElemOfPoliz type) : t(type) {};
 	elemOfPoliz(vector<Lexeme> v) : expr(v), t(EXPR) {};
 	

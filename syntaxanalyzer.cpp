@@ -109,9 +109,9 @@ void syntax_analyzer::name() { //вот тут я не уверен, что вс
 	}
 	
 	if(!exprIsNow)
-		pol.push(lex.s);
+		pol.push(lex.s, elemOfPoliz::typeElemOfPoliz::IDENT);
 
-	getc(lex);
+	//getc(lex);
 }
 void syntax_analyzer::Operator() {
 	Lexeme t;
@@ -158,6 +158,7 @@ void syntax_analyzer::expression() {
 	exprIsNow = true;
 	addToExpr();
 	if (t.s == "=" && lex.t == IDENT) {
+		assigment=true;
 		name();
 		getc(lex);
 		//SEA.checkop(tmp, lex);
@@ -179,7 +180,7 @@ void syntax_analyzer::expression() {
 	exprIsNow = false;
 
 	if (assigment) {
-		pol.push('=');
+		pol.push("=");
 		assigment = false;
 	}
 
@@ -473,7 +474,7 @@ void syntax_analyzer::description() {
 		getc(lex);
 		section();
 	}if (lex.s != ";")throw(Error(";  expected...where my ; ? :(", lex.line));
-	getc(lex);
+	//getc(lex);
 }
 void syntax_analyzer::section() {
 	int i = 1; bool t = false;
@@ -485,7 +486,7 @@ void syntax_analyzer::section() {
 	if (t) {
 		name();
 		//now , after name calling, lex.s=="="
-		getc(lex);//next lexeme
+		//getc(lex);//next lexeme
 		expression();
 	}
 	else name();
