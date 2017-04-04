@@ -93,10 +93,6 @@ void Poliz::push(string d) {
 	pol.push_back(elemOfPoliz(d));
 }
 
-void Poliz::push(elemOfPoliz::typeElemOfPoliz t) {
-	pol.push_back(elemOfPoliz(t));
-}
-
 void Poliz::push(vector<Lexeme> v) {
 	pol.push_back(elemOfPoliz(v));
 }

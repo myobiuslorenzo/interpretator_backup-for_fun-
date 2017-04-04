@@ -168,8 +168,11 @@ void syntax_analyzer::expression() {
 
 	//pol.push(Ident((double)precalc.calculate())); //очистка сделана в прекалке
 
+	if (pushExprInPol) {
+		pol.push(precalc.expr);
+		precalc.expr.clear();
+	}
 
-	pol.push(precalc.expr);
 	exprIsNow = false;
 
 	if (assigment) {
@@ -495,22 +498,39 @@ void syntax_analyzer::special_operator() {
 	}
 	else for_operator();
 }
-void syntax_analyzer::dowhile_operator() { //не смущайся, все норм, оператор - {...}
+void syntax_analyzer::dowhile_operator() { //не смущайся, все норм, оператор - {...}  POLIZ HERE
 	//don't need to check "do"existence
 	pushExprInPol = false;
 
 	Operator();
+
+	vector<Lexeme> bodyOfWhile = precalc.expr;
+	precalc.expr.clear();
+	pushExprInPol = true;
+
 	if (lex.s != "while")throw(Error("while expected", lex.line));
 	getc(lex);
 	if (lex.s != "(")throw(Error("( expected", lex.line));
 	getc(lex);
 	expressionForWhile();
+
+	int IndexOfAddressOfS2=pol.pol.size(); //look in grammatic and you will understand
+	pol.push(-1);
+
+	elemOfPoliz e(elemOfPoliz::RETRANS);
+	pol.push(e);
+
+	pol.push(bodyOfWhile);
+	pol.push((int) pol.pol.size() - 4); //check this horror!
+
+	elemOfPoliz ee(elemOfPoliz::TRANS);
+	pol.push(ee);
+
 	if (lex.s != ")")throw(Error(") expected", lex.line));
 	getc(lex);
 	if (lex.s != ";")throw(Error("; expected", lex.line));
 	getc(lex);
-
-	pushExprInPol = true;
+	
 }
 void syntax_analyzer::for_operator() {
 	if (lex.s != "for") throw(Error("for expected", lex.line));
@@ -541,31 +561,68 @@ void syntax_analyzer::for_operator() {
 	else {
 		cfor_operator();
 	}
-	if (t)else_branch();
+	if (t) else_branch();
 }
-void syntax_analyzer::cfor_operator() {
+void syntax_analyzer::cfor_operator() { //dangeous item, need to check // poliz here
 	// you mustn't check the for existence
 	if (lex.s == "int" || lex.s == "bool" || lex.s == "double") {
 		description();
+
 		expression();
+		pol.push(-1);
+
+		elemOfPoliz e(elemOfPoliz::RETRANS);
+		pol.push(e);
+
 		if (lex.s != ";")throw(Error("; expected", lex.line));
 		getc(lex);
+
+		pushExprInPol = false;
 		expression();
+		vector<Lexeme> operOfFor = precalc.expr;
+		precalc.expr.clear();
+		pushExprInPol = true;
+
 		if(lex.s!=")")throw(Error(") expected", lex.line));
 		getc(lex);
 		Operator();
+
+		pol.push(operOfFor);
+		pol.push((int) pol.pol.size() - 5);
+
+		elemOfPoliz ee(elemOfPoliz::TRANS);
+		pol.push(ee);
 	}
 	else {
 		expression();
 		if (lex.s != ";")throw(Error("; expected", lex.line));
+
 		getc(lex);
-		expression();
+		expression(); //условие
+
+		pol.push(-1);
+
+		elemOfPoliz e(elemOfPoliz::RETRANS);
+		pol.push(e);
+
 		if (lex.s != ";")throw(Error("; expected", lex.line));
 		getc(lex);
+
+		pushExprInPol = false;
 		expression();
+		vector<Lexeme> operOfFor = precalc.expr;
+		precalc.expr.clear();
+		pushExprInPol = true;
+
 		if (lex.s != ")")throw(Error(") expected", lex.line));
 		getc(lex);
 		Operator();
+
+		pol.push(operOfFor);
+		pol.push((int) pol.pol.size() - 5);
+
+		elemOfPoliz ee(elemOfPoliz::TRANS);
+		pol.push(ee);
 	}
 }
 void syntax_analyzer::pfor_operator() {
