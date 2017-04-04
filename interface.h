@@ -104,6 +104,7 @@ struct elemOfPoliz {
 	elemOfPoliz(string o)//dangerous!!!!!! 
 	{
 		t = OPER; 
+		cout << "adsf";
 		oper = o;
 	}
 
@@ -182,7 +183,7 @@ struct semantic_analyzer {
 	map <Lexeme, bool> TID_FOR_USERS_TYPES;
 };
 
-struct Poliz {
+struct Poliz { //если тебя что-то не устраивает в конструкторе -> смотри в конструкторы elemOfPoliz
 	enum typeElemOfPoliz { IDENT, CONST, OPER, TRANS, TRANSONLIE, EXPR,  };//если писать это в структуре, он за тип берет typelex или ещё что-то.... 
 																		   //TRANSONLIE - ПЕРЕХОД ПО ЛЖИ
 
