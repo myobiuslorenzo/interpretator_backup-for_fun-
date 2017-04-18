@@ -1,9 +1,38 @@
 int main(){
 int a=4+3-9+3;
+do{
+	a++;
+	cinout<<a;
+
+} while (a<8);
+
 
 
 return 0;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

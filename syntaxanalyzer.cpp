@@ -111,7 +111,7 @@ void syntax_analyzer::name() { //вот тут я не уверен, что вс
 	if(!exprIsNow)
 		pol.push(lex.s, elemOfPoliz::typeElemOfPoliz::IDENT);
 
-	//getc(lex);
+	getc(lex);
 }
 void syntax_analyzer::Operator() {
 	Lexeme t;
@@ -152,8 +152,12 @@ void syntax_analyzer::expression_statement() {
 }
 void syntax_analyzer::expression() {
 	Lexeme t;
-	watch(t, 1);
-	Lexeme tmp = lex;
+	if (!descript)
+		watch(t, 1);
+	else {
+		t = lex;
+		assigment = true;
+	}
 
 	exprIsNow = true;
 	addToExpr();
@@ -180,7 +184,7 @@ void syntax_analyzer::expression() {
 	exprIsNow = false;
 
 	if (assigment) {
-		pol.push("=");
+		pol.push(string("="));
 		assigment = false;
 	}
 
@@ -465,6 +469,7 @@ void syntax_analyzer::composite_operator() { //poliz working
 		throw(Error("} expected", lex.line));
 }
 void syntax_analyzer::description() {
+	descript = true;
 	type();
 
 	SemA.push_name_in_set(lex);
@@ -474,7 +479,9 @@ void syntax_analyzer::description() {
 		getc(lex);
 		section();
 	}if (lex.s != ";")throw(Error(";  expected...where my ; ? :(", lex.line));
-	//getc(lex);
+	getc(lex);	
+
+	descript = false;
 }
 void syntax_analyzer::section() {
 	int i = 1; bool t = false;
@@ -486,7 +493,7 @@ void syntax_analyzer::section() {
 	if (t) {
 		name();
 		//now , after name calling, lex.s=="="
-		//getc(lex);//next lexeme
+		getc(lex);//next lexeme
 		expression();
 	}
 	else name();

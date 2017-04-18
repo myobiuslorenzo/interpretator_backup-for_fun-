@@ -104,7 +104,6 @@ struct elemOfPoliz {
 	elemOfPoliz(string o)//dangerous!!!!!! 
 	{
 		t = OPER; 
-		cout << "adsf";
 		oper = o;
 	}
 
@@ -233,7 +232,7 @@ struct syntax_analyzer {
 	semantic_analyzer SemA;
 	Poliz pol;
 	Precalculator precalc;
-	bool exprIsNow = false, assigment =false, pushExprInPol=true;
+	bool exprIsNow = false, assigment =false, pushExprInPol=true, descript =false;
 
 	ifstream ifs;
 	vector<Lexeme> BOL_S;
