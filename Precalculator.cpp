@@ -30,12 +30,3 @@ ld Precalculator::calculate(string s) {
 	expr.clear();
 	return Calc();
 }
-
-ld Precalculator::calculate() {
-	ofstream ofs("InForCalc.txt");
-	ofs << "\\calc -c\n" << expr << endl << "END";
-	ofs.close();
-
-	expr.clear();
-	return Calc();
-}
