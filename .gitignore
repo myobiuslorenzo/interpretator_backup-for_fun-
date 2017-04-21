@@ -1,0 +1,12 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/Debug
+/Interpretator2_0.vcxproj
+*.vcxproj
+*.filters
+/Interpretator2_0.vcxproj
+*.vcxproj
+/Interpretator2_0.vcxproj
+*.vcxproj

@@ -1,2 +1,22 @@
 ﻿  syntaxanalyzer.cpp
-LINK : fatal error LNK1168: cannot open C:\Users\Yury\Documents\Workork\Interpretator2_0\Debug\Interpretator2_0.exe for writing
+  semantic_analyzer.cpp
+  poliz.cpp
+c:\users\yury\documents\workork\interpretator2_0\interpretator2_0\poliz.cpp(165): warning C4018: '<': signed/unsigned mismatch
+  main.cpp
+  lexanalyzer.cpp
+  Precalculator.cpp
+c:\users\yury\documents\workork\interpretator2_0\interpretator2_0\strcalc\strcalc.h(529): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+c:\users\yury\documents\workork\interpretator2_0\interpretator2_0\strcalc\strcalc.h(537): warning C4244: '*=': conversion from 'double' to 'int', possible loss of data
+c:\users\yury\documents\workork\interpretator2_0\interpretator2_0\strcalc\strcalc.h(573): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+c:\users\yury\documents\workork\interpretator2_0\interpretator2_0\strcalc\strcalc.h(765): warning C4101: 'answ': unreferenced local variable
+c:\users\yury\documents\workork\interpretator2_0\interpretator2_0\strcalc\strcalc.h(934): warning C4101: 'e': unreferenced local variable
+c:\users\yury\documents\workork\interpretator2_0\interpretator2_0\strcalc\strcalc.h(1008): warning C4101: 'e': unreferenced local variable
+c:\users\yury\documents\workork\interpretator2_0\interpretator2_0\strcalc\strcalc.h(1031): warning C4101: 'e': unreferenced local variable
+c:\users\yury\documents\workork\interpretator2_0\interpretator2_0\strcalc\strcalc.h(1093): warning C4101: 'e': unreferenced local variable
+c:\users\yury\documents\workork\interpretator2_0\interpretator2_0\strcalc\strcalc.h(1127): warning C4101: 'e': unreferenced local variable
+c:\users\yury\documents\workork\interpretator2_0\interpretator2_0\strcalc\strcalc.h(1370): warning C4101: 'e': unreferenced local variable
+  Generating Code...
+c:\users\yury\documents\workork\interpretator2_0\interpretator2_0\poliz.cpp(138): warning C4715: 'Poliz::find': not all control paths return a value
+c:\users\yury\documents\workork\interpretator2_0\interpretator2_0\poliz.cpp(143): warning C4715: 'Poliz::find': not all control paths return a value
+  Interpretator2_0.vcxproj -> C:\Users\Yury\Documents\Workork\Interpretator2_0\Debug\Interpretator2_0.exe
+  Interpretator2_0.vcxproj -> C:\Users\Yury\Documents\Workork\Interpretator2_0\Debug\Interpretator2_0.pdb (Partial PDB)
