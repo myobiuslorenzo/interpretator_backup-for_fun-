@@ -1,6 +1,10 @@
 int main(){
-cinout<<4+3-9+3;
+int a=4;
+do{
+	a++;
+	cinout<<a;
 
+} while (a<8);
 
 return 0;
 }
