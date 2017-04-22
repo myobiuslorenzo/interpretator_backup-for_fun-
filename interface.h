@@ -231,8 +231,10 @@ struct Precalculator {
 struct syntax_analyzer {
 	semantic_analyzer SemA;
 	Poliz pol;
-	Precalculator precalc;
-	bool exprIsNow = false, assigment =false, pushExprInPol=true, descript =false;
+	Precalculator precalc; 
+	bool exprIsNow = false, assigment =false, pushExprInPol=true, descript =false, whileOrForBody=false; 
+		//pushExprInPol - true = пихает выражение в полиз при завершении expression()
+		//exprIsNow - в getc() будет пихать автоматически каждый символ в выражение при считывании
 
 	ifstream ifs;
 	vector<Lexeme> BOL_S;
