@@ -145,7 +145,7 @@ void syntax_analyzer::expression_statement() {
 	if (lex.s == "}") throw(Error("found \"}\", but expression expected.", lex.line));
 
 	expression();
-	if (lex.s != ";")throw(Error("found \"" + lex.s + "\", but expected...where my ; ? :'(", lex.line));
+	if (lex.s != ";")throw(Error("found \"" + lex.s + "\", but ; expected...where is my ; ? :'(", lex.line));
 	getc(lex);
 }
 void syntax_analyzer::expression() {
@@ -334,17 +334,18 @@ void syntax_analyzer::atom() { //poliz working
 
 		expression();
 
-		getc(lex);
-
 		//if (!exprIsNow)
 		//addToExpr();
 
 		if (lex.s != ")")
 			throw(Error(") expected", lex.line));
 
+		getc(lex);
+
 	} else {
 		if (lex.t == IDENT) {
 			name();
+			getc(lex);// или не здесь, а перед инк. // ЭТО БЫЛО У ОЛИ. У ЮРЫ НЕ БЫЛО
 			if (lex.s == ";")return;// expression must be finished for this time
 		} else
 			special_atom();
@@ -363,7 +364,12 @@ void syntax_analyzer::special_atom() { //ФЛАГ всё норм с ! ??? //pol
 
 	if (isLet(lex.s[0]))
 		bool_value();
-	else {
+	else if (lex.s == "=") {
+		//надо, кажется, пихнть сслылку на индетификатор - куда присваивать
+		//ЭТО НЕ РАБОТАЕТ!!!
+		getc(lex);
+		expression();
+	} else {
 		constant();
 	}
 }
@@ -434,7 +440,7 @@ void syntax_analyzer::input_output_operator() { //poliz working
 	if (lex.s != "cinout")throw(Error("cinout expected, but not this heresy", lex.line));
 	getc(lex);
 	list_of_elements();
-	if (lex.s != ";")throw(Error("; expected...where my ; ? :(", lex.line));
+	if (lex.s != ";")throw(Error("; expected...where is my ; ? :(", lex.line));
 	getc(lex);
 }
 void syntax_analyzer::list_of_elements() { //poliz working
@@ -488,7 +494,7 @@ void syntax_analyzer::description() {
 	while (lex.s == ",") {
 		getc(lex);
 		section();
-	}if (lex.s != ";")throw(Error(";  expected...where my ; ? :(", lex.line));
+	}if (lex.s != ";")throw(Error(";  expected...where is my ; ? :(", lex.line));
 	getc(lex);
 
 	descript = false;
