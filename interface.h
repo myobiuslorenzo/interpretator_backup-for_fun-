@@ -16,7 +16,7 @@ struct Lexeme{
 		t = tl;
 		s.push_back(str);
 		coord = _coord;
-		line = _line;
+		line = _line-1;
 	}
 	void rev() {
 		strbool = !strbool;
@@ -116,7 +116,7 @@ struct elemOfPoliz {
 	elemOfPoliz(int d) : i(d), t(CONST) {};
 	elemOfPoliz(char d) : i(d), t(CONST) {};
 	elemOfPoliz(bool d) : i(d), t(CONST) {};
-	elemOfPoliz(string s, typeElemOfPoliz type) : oper(s), t(type) {};
+	elemOfPoliz(string s, typeElemOfPoliz type) : i(s), t(type) {}; //not for oper
 	elemOfPoliz(typeElemOfPoliz type) : t(type) {};
 	elemOfPoliz(vector<Lexeme> v) : expr(v), t(EXPR) {};
 	
@@ -182,7 +182,7 @@ struct semantic_analyzer {
 	map <Lexeme, bool> TID_FOR_USERS_TYPES;
 };
 
-struct Poliz {
+struct Poliz { //если тебя что-то не устраивает в конструкторе -> смотри в конструкторы elemOfPoliz
 	enum typeElemOfPoliz { IDENT, CONST, OPER, TRANS, TRANSONLIE, EXPR,  };//если писать это в структуре, он за тип берет typelex или ещё что-то.... 
 																		   //TRANSONLIE - ПЕРЕХОД ПО ЛЖИ
 
@@ -231,8 +231,10 @@ struct Precalculator {
 struct syntax_analyzer {
 	semantic_analyzer SemA;
 	Poliz pol;
-	Precalculator precalc;
-	bool exprIsNow = false, assigment =false, pushExprInPol=true;
+	Precalculator precalc; 
+	bool exprIsNow = false, assigment =false, pushExprInPol=true, descript =false, whileOrForBody=false; 
+		//pushExprInPol - true = пихает выражение в полиз при завершении expression()
+		//exprIsNow - в getc() будет пихать автоматически каждый символ в выражение при считывании
 
 	ifstream ifs;
 	vector<Lexeme> BOL_S;

@@ -169,8 +169,7 @@ void syntax_analyzer::expression() {
 	}
 
 	//pol.push(Ident((double)precalc.calculate())); //очистка сделана в прекалке
-
-	precalc.expr.pop_back();
+	if(!precalc.expr.empty())precalc.expr.pop_back();//Cие костыль великий!!
 
 	if (pushExprInPol) {
 		pol.push(precalc.expr);
@@ -316,17 +315,19 @@ void syntax_analyzer::atom() { //poliz working
 
 		expression();
 
-		getc(lex);
+		
 
 		//if (!exprIsNow)
 			//addToExpr();
 
 		if (lex.s != ")")
 			throw(Error(") expected", lex.line));
+		getc(lex);
 
 	} else {
 		if (lex.t == IDENT) {
 			name();
+			getc(lex);// или не здесь, а перед инк.
 			if (lex.s == ";")return;// expression must be finished for this time
 		}
 		else
@@ -350,6 +351,7 @@ void syntax_analyzer::special_atom() { //ФЛАГ всё норм с ! ??? //pol
 		//надо, кажется, пихнть сслылку на индетификатор - куда присваивать
 		//ЭТО НЕ РАБОТАЕТ!!!
 		getc(lex);
+		expression();
 	}else{
 		constant();
 	}
