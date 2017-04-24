@@ -8,7 +8,7 @@ int main(){
 		syntax_analyzer SA("Output.txt",LA.BOL.finalmasoflex);
 
 		SA.program();
-		SA.pol.scan();
+		//SA.pol.scan();
 
 /*		Precalculator p;
 		string s;
