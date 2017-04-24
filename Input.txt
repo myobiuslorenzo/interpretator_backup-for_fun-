@@ -1,13 +1,52 @@
 int main(){
 int a=4;
-do{
-	a++;
-	cinout<<a;
 
-} while (a<8);
+for(a=1; a<10; a++){
+	cinout<<a;
+}
+
+do {
+	cinout<<a+1;
+} while(a<15);
 
 return 0;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

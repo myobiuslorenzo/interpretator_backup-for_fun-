@@ -10,27 +10,27 @@ bool isLet(char c) { //опасная штука, проверь
 }
 
 /*void syntax_analyzer::getc(Lexeme& L) {
-	if (ifs.eof())
-		L = Lexeme();
-	else
-		ifs.read((char*)&L, sizeof(Lexeme));
+if (ifs.eof())
+L = Lexeme();
+else
+ifs.read((char*)&L, sizeof(Lexeme));
 }*/
 /*Lexeme syntax_analyzer::watch(int shift) {
-	ifstream::streampos pos = ifs.tellg();
-	ifs.seekg(sizeof(Lexeme)*(shift-1), ios::cur);
+ifstream::streampos pos = ifs.tellg();
+ifs.seekg(sizeof(Lexeme)*(shift-1), ios::cur);
 
-	Lexeme t;
-	ifs.read((char*)&t, sizeof(Lexeme));
-	cout << t.s << ' ' << lex.s << endl;*/
-	//ifs.seekg(pos/*sizeof(Lexeme)*(-shift)*/, ios::beg);
-	/*cout << t.s << ' ' << lex.s << endl;
-	return t;
+Lexeme t;
+ifs.read((char*)&t, sizeof(Lexeme));
+cout << t.s << ' ' << lex.s << endl;*/
+//ifs.seekg(pos/*sizeof(Lexeme)*(-shift)*/, ios::beg);
+/*cout << t.s << ' ' << lex.s << endl;
+return t;
 }*/
 
 void syntax_analyzer::getc(Lexeme& L) {
-	
 
-	if (ifs.eof() || index>=BOL_S.size())
+
+	if (ifs.eof() || index >= BOL_S.size())
 		L = Lexeme();
 	else {
 		L = BOL_S[index];
@@ -44,7 +44,7 @@ void syntax_analyzer::getc(Lexeme& L) {
 
 	if (exprIsNow)
 		addToExpr();
-	
+
 	index++;
 }
 
@@ -52,10 +52,10 @@ void syntax_analyzer::addToExpr() {
 	precalc.expr.push_back(lex);
 }
 
-void syntax_analyzer::watch(Lexeme& t,int shift) {
+void syntax_analyzer::watch(Lexeme& t, int shift) {
 	if (index + shift >= BOL_S.size())
 		t = Lexeme();
-	else t = BOL_S[index + shift-1];
+	else t = BOL_S[index + shift - 1];
 }
 void syntax_analyzer::program() {
 	SemA.STACK_FOR_SET_OF_IDENT.push(set<string>());
@@ -64,19 +64,19 @@ void syntax_analyzer::program() {
 
 	if (lex.t == END)throw(Error("Empty program\n"));
 	while (lex.s != "int") {
-		if (lex.t==END)
-			throw(Error("int expected",lex.line));
+		if (lex.t == END)
+			throw(Error("int expected", lex.line));
 
 		Lexeme t;
 		watch(t, 1);
 		if (t.s != "main")
 			description();
 		else
-			throw(Error("int  expected, but \""+lex.s+"\" found", t.line));
-	 }
+			throw(Error("int  expected, but \"" + lex.s + "\" found", t.line));
+	}
 
 	if (ifs.eof())
-		throw(Error("main expected",lex.line));
+		throw(Error("main expected", lex.line));
 
 	getc(lex);
 
@@ -85,7 +85,7 @@ void syntax_analyzer::program() {
 
 	getc(lex);
 
-	if(lex.s!="(")
+	if (lex.s != "(")
 		throw(Error("( expected", lex.line));
 
 	getc(lex);
@@ -94,7 +94,7 @@ void syntax_analyzer::program() {
 		throw(Error(") expected", lex.line));
 	getc(lex);
 
-	if(lex.s!="{")
+	if (lex.s != "{")
 		throw(Error("{ expected", 1));
 
 	Operator();
@@ -104,14 +104,14 @@ void syntax_analyzer::name() { //вот тут я не уверен, что вс
 
 	if (!isLet(lex.s[0])) {
 		string err("The name can't begin with '");
-		err += lex.s[0]+"'!";
+		err += lex.s[0] + "'!";
 		throw(Error(err, lex.line));
 	}
-	
-	if(!exprIsNow)
+
+	if (!exprIsNow)
 		pol.push(lex.s, elemOfPoliz::typeElemOfPoliz::IDENT);
 
-	//getc(lex);
+	getc(lex);
 }
 void syntax_analyzer::Operator() {
 	Lexeme t;
@@ -126,50 +126,55 @@ void syntax_analyzer::Operator() {
 			composite_operator();
 			SemA.STACK_FOR_SET_OF_IDENT.pop();
 
-		}
-		else
-			if (lex.s == "do" || lex.s == "for"||lex.s=="while")
+		} else
+			if (lex.s == "do" || lex.s == "for" || lex.s == "while")
 				special_operator();
 			else
-				if (lex.s == "int" || lex.s == "bool" || lex.s == "double"||lex.s=="char") {
+				if (lex.s == "int" || lex.s == "bool" || lex.s == "double" || lex.s == "char") {
 					buff_type = lex.s;
 					description();
-				}
-				else
+				} else
 					expression_statement();
 
- 	//getc(lex);
+				//getc(lex);
 
-	//if (lex.t != END)
-		//getc(lex);
+				//if (lex.t != END)
+				//getc(lex);
 }
 void syntax_analyzer::expression_statement() {
 	if (lex.s == "}") throw(Error("found \"}\", but expression expected.", lex.line));
 
 	expression();
-	if (lex.s != ";")throw(Error("found \""+lex.s+"\", but expected...where is my ; ? :'(", lex.line));
+	if (lex.s != ";")throw(Error("found \"" + lex.s + "\", but expected...where my ; ? :'(", lex.line));
 	getc(lex);
 }
 void syntax_analyzer::expression() {
 	Lexeme t;
-	watch(t, 1);
-	Lexeme tmp = lex;
+	if (!descript)
+		watch(t, 1);
+	else {
+		t = lex;
+		assigment = true;
+	}
 
-	exprIsNow = true;
-	addToExpr();
 	if (t.s == "=" && lex.t == IDENT) {
-		assigment=true;
+		assigment = true;
+		exprIsNow = false;
 		name();
 		getc(lex);
 		//SEA.checkop(tmp, lex);
 		expression();
-	}
-	else {
+
+		pushExprInPol = false;
+	} else {
+		exprIsNow = true;
+		addToExpr();
 		expression_1();
 	}
 
 	//pol.push(Ident((double)precalc.calculate())); //очистка сделана в прекалке
-	if(!precalc.expr.empty())precalc.expr.pop_back();//Cие костыль великий!!
+
+	if (!precalc.expr.empty()) precalc.expr.pop_back();
 
 	if (pushExprInPol) {
 		pol.push(precalc.expr);
@@ -179,14 +184,15 @@ void syntax_analyzer::expression() {
 	exprIsNow = false;
 
 	if (assigment) {
-		pol.push("=");
+		pol.push(string("="));
 		assigment = false;
 	}
 
-//	getc(lex);
+	//	getc(lex);
 }
 
 void syntax_analyzer::expressionForWhile() { //poliz working
+	exprIsNow = true;
 	Lexeme t;
 	watch(t, 1);
 	Lexeme tmp = lex;
@@ -198,21 +204,28 @@ void syntax_analyzer::expressionForWhile() { //poliz working
 	} else {
 		expression_1ForWhile();
 	}
+
+	if (pushExprInPol) {
+		pol.push(precalc.expr);
+		precalc.expr.clear();
+	}
+
+
 }
 void syntax_analyzer::expression_1() {
 
 	int i = 1;
-	Lexeme t=lex;
-	while (t.t!=PUNCT&&t.s!="!"&&t.s != "<"&&t.s != ">" &&t.s != "=="&&t.s != "<="&&t.s != ">=") {
+	Lexeme t = lex;
+	while (t.t != PUNCT&&t.s != "!"&&t.s != "<"&&t.s != ">" &&t.s != "=="&&t.s != "<="&&t.s != ">=") {
 		watch(t, i);
 		i++;
 	}
 
 	//if (t.s=="+"||t.s=="-") {
-	if(t.t==PUNCT)
+	if (t.t == PUNCT)
 		simple_expression();
 	else {
-	//	expression_1(); Это ,хоть и по грамматике, все-таки лишнее. С этим будет бесконечный цикл 
+		//	expression_1(); Это ,хоть и по грамматике, все-таки лишнее. С этим будет бесконечный цикл 
 		getc(lex);
 		ratio_operation();
 		//getc(lex);
@@ -234,14 +247,20 @@ void syntax_analyzer::expression_1ForWhile() {
 	if (t.t == PUNCT)
 		simple_expression();
 	else {
-		//	expression_1(); Это ,хоть и по грамматике, все-таки лишнее. С этим будет бесконечный цикл 
-		getc(lex);
+		//	expression_1(); Это ,хоть и по грамматике, все-таки лишнее. С этим будет бесконечный цикл
+		precalc.expr.push_back(lex); //КОСТЫЛЬ
+		simple_expression();
+		//getc(lex);
 		ratio_operation();
 		//getc(lex);
 
-		expression_1ForWhile();
+		simple_expression();
+		precalc.expr.pop_back();
 	}
 }
+
+
+
 void syntax_analyzer::ratio_operation() {
 	if (lex.s == "!=" || lex.s == "<" || lex.s == ">" || lex.s == "==" || lex.s == "<=" || lex.s == ">=") {
 		getc(lex);
@@ -308,35 +327,32 @@ void syntax_analyzer::atom_1() { //poliz working
 void syntax_analyzer::atom() { //poliz working
 	if (lex.s == "(") {
 		//precalc.expr += '(';
-		if(!exprIsNow)
+		if (!exprIsNow)
 			addToExpr();
 
 		getc(lex);
 
 		expression();
 
-		
+		getc(lex);
 
 		//if (!exprIsNow)
-			//addToExpr();
+		//addToExpr();
 
 		if (lex.s != ")")
 			throw(Error(") expected", lex.line));
-		getc(lex);
 
 	} else {
 		if (lex.t == IDENT) {
 			name();
-			getc(lex);// или не здесь, а перед инк.
 			if (lex.s == ";")return;// expression must be finished for this time
-		}
-		else
+		} else
 			special_atom();
 	}
 
 }
 void syntax_analyzer::special_atom() { //ФЛАГ всё норм с ! ??? //poliz working
-	//должно быть норм
+									   //должно быть норм
 	if (lex.s == "!") {
 		if (!exprIsNow)
 			addToExpr();
@@ -347,18 +363,13 @@ void syntax_analyzer::special_atom() { //ФЛАГ всё норм с ! ??? //pol
 
 	if (isLet(lex.s[0]))
 		bool_value();
-	else if (lex.s == "=") {
-		//надо, кажется, пихнть сслылку на индетификатор - куда присваивать
-		//ЭТО НЕ РАБОТАЕТ!!!
-		getc(lex);
-		expression();
-	}else{
+	else {
 		constant();
 	}
 }
 void syntax_analyzer::addition_operation() {
 	if (lex.s != "+"&&lex.s != "-"&&lex.s != "||")
-	throw(Error("addition operation expected", lex.line));
+		throw(Error("addition operation expected", lex.line));
 	//addToExpr();
 	getc(lex);
 }
@@ -370,7 +381,7 @@ void syntax_analyzer::multiplication_operation() {
 	getc(lex);
 }
 void syntax_analyzer::exponentiation() {
-	if(lex.s!="^")
+	if (lex.s != "^")
 		throw(Error("exponentiation expected", lex.line));
 
 	//pol.push(lex.s);
@@ -379,14 +390,14 @@ void syntax_analyzer::exponentiation() {
 void syntax_analyzer::assigment_operation() {
 	assigment = true;
 	if (lex.s != "=")
-	throw(Error("assigment operation expected", lex.line));
+		throw(Error("assigment operation expected", lex.line));
 
 	getc(lex);
 }
 void syntax_analyzer::increment() {
 	if (lex.s != "--" && lex.s != "++")
-	throw(Error("increment or decrement expected", lex.line));
-	
+		throw(Error("increment or decrement expected", lex.line));
+
 	//pol.push(lex.s);
 	getc(lex);
 }
@@ -408,11 +419,11 @@ void syntax_analyzer::bool_value() {
 	if (lex.s == "return")
 		getc(lex);
 	else
-	if (lex.s != "true"&&lex.s!="false")
-		throw(Error("bool value expected", lex.line));
+		if (lex.s != "true"&&lex.s != "false")
+			throw(Error("bool value expected", lex.line));
 
 	if (lex.s == "true")
-		precalc.expr.back().s="1";
+		precalc.expr.back().s = "1";
 	else
 		precalc.expr.back().s = "0";
 
@@ -420,7 +431,7 @@ void syntax_analyzer::bool_value() {
 }
 ///////////////////////////////////////////////////
 void syntax_analyzer::input_output_operator() { //poliz working
-	if (lex.s != "cinout")throw(Error("cinout expected, but not this heresy",lex.line));
+	if (lex.s != "cinout")throw(Error("cinout expected, but not this heresy", lex.line));
 	getc(lex);
 	list_of_elements();
 	if (lex.s != ";")throw(Error("; expected...where my ; ? :(", lex.line));
@@ -435,42 +446,40 @@ void syntax_analyzer::list_of_elements() { //poliz working
 }
 void syntax_analyzer::element() {//poliz working here
 	if (lex.s == "<<") {
-		pol.push(string("<<"));
+		whileOrForBody ? addToExpr() : pol.push(string("<<"));
 
 		getc(lex);
 		if (lex.strbool == true) {
 			pol.push(lex.s);
 			getc(lex);
 			return;////?
-		}
-		else if (lex.s == "endl") {
+		} else if (lex.s == "endl") {
 			pol.push(Ident('\n'));
 			return;
-		}
-		else expression();
-	}
-	else if (lex.s==">>") {
-		pol.push(string(">>"));
+		} else expression();
+	} else if (lex.s == ">>") {
+		whileOrForBody ? addToExpr() : pol.push(string(">>"));
 		getc(lex);
 		//pol.push(Ident(lex.s));
 		name();
-	}else throw(Error("<< or >> expected", lex.line));
+	} else throw(Error("<< or >> expected", lex.line));
 }
 void syntax_analyzer::composite_operator() { //poliz working
 	if (lex.s != "{")throw(Error("{ expected", lex.line));
 	getc(lex);
 
-	if(lex.s!="}")	Operator();
-	while (lex.s != ";" && lex.s != "}"&& lex.s!="return") {
+	if (lex.s != "}")	Operator();
+	while (lex.s != ";" && lex.s != "}"&& lex.s != "return") {
 		Operator();
 	}
 
-	if(lex.s=="}"||lex.s=="return")
+	if (lex.s == "}" || lex.s == "return")
 		getc(lex);
 	else
 		throw(Error("} expected", lex.line));
 }
 void syntax_analyzer::description() {
+	descript = true;
 	type();
 
 	SemA.push_name_in_set(lex);
@@ -479,8 +488,10 @@ void syntax_analyzer::description() {
 	while (lex.s == ",") {
 		getc(lex);
 		section();
-	}if (lex.s != ";")throw(Error(";  expected...where is my ; ? :(", lex.line));
+	}if (lex.s != ";")throw(Error(";  expected...where my ; ? :(", lex.line));
 	getc(lex);
+
+	descript = false;
 }
 void syntax_analyzer::section() {
 	int i = 1; bool t = false;
@@ -491,32 +502,31 @@ void syntax_analyzer::section() {
 	}
 	if (t) {
 		name();
-		
+		//now , after name calling, lex.s=="="
+		getc(lex);//next lexeme
 		expression();
-	}
-	else {
-		name();
-		getc(lex);
-	}
+	} else name();
 }
 void ::syntax_analyzer::type() {
-	if (lex.s != "int" && lex.s != "bool" && lex.s != "double"&&lex.s!="char")throw(Error("Unknown type", lex.line));
+	if (lex.s != "int" && lex.s != "bool" && lex.s != "double"&&lex.s != "char")throw(Error("Unknown type", lex.line));
 	getc(lex);
 }
 void syntax_analyzer::special_operator() {
 	if (lex.s == "do") {
 		getc(lex);
 		dowhile_operator();
-	}
-	else for_operator();
+	} else for_operator();
 }
 void syntax_analyzer::dowhile_operator() { //не смущайся, все норм, оператор - {...}  POLIZ HERE
-	//don't need to check "do"existence
+										   //don't need to check "do"existence
 	pushExprInPol = false;
+	whileOrForBody = true;
 
 	Operator();
 
-	vector<Lexeme> bodyOfWhile = precalc.expr;
+	//vector<Lexeme> bodyOfWhile = precalc.expr;
+	pol.push(precalc.expr);
+
 	precalc.expr.clear();
 	pushExprInPol = true;
 
@@ -526,27 +536,30 @@ void syntax_analyzer::dowhile_operator() { //не смущайся, все но�
 	getc(lex);
 	expressionForWhile();
 
-	int IndexOfAddressOfS2=pol.pol.size(); //look in grammatic and you will understand
+	int IndexOfAddressOfS2 = pol.pol.size(); //look in grammatic and you will understand
 	pol.push(-1);
 
 	elemOfPoliz e(elemOfPoliz::RETRANS);
 	pol.push(e);
 
-	pol.push(bodyOfWhile);
 	pol.push((int) pol.pol.size() - 4); //check this horror!
 
 	elemOfPoliz ee(elemOfPoliz::TRANS);
 	pol.push(ee);
 
+	pol.pol[IndexOfAddressOfS2] = elemOfPoliz((int) pol.pol.size());
+
 	if (lex.s != ")")throw(Error(") expected", lex.line));
 	getc(lex);
 	if (lex.s != ";")throw(Error("; expected", lex.line));
+	whileOrForBody = false;
 	getc(lex);
-	
+
 }
 void syntax_analyzer::for_operator() {
+	whileOrForBody = true;
 	if (lex.s != "for") throw(Error("for expected", lex.line));
-		getc(lex);
+	getc(lex);
 	if (lex.s != "(") throw(Error("( expected", lex.line));
 	getc(lex);
 	buff = lex;
@@ -559,7 +572,7 @@ void syntax_analyzer::for_operator() {
 		}
 		i++;
 	}
-	if (lex.s!="int" && lex.s!="double" && lex.s!="bool") {
+	if (lex.s != "int" && lex.s != "double" && lex.s != "bool") {
 		buff = lex; bool t = false;
 		int i = 1;
 		while (buff.s != "none") {
@@ -567,51 +580,21 @@ void syntax_analyzer::for_operator() {
 			if (buff.s == "to" || buff.s == "downto")t = true;
 			i++;
 		}
-		if(t)pfor_operator();
+		if (t)pfor_operator();
 		else cfor_operator();
-	}
-	else {
+	} else {
 		cfor_operator();
 	}
 	if (t) else_branch();
+
+	whileOrForBody = false;
 }
 void syntax_analyzer::cfor_operator() { //dangeous item, need to check // poliz here
-	// you mustn't check the for existence
+										// you mustn't check the for existence
 	if (lex.s == "int" || lex.s == "bool" || lex.s == "double") {
 		description();
 
 		expression();
-		pol.push(-1);
-
-		elemOfPoliz e(elemOfPoliz::RETRANS);
-		pol.push(e);
-
-		if (lex.s != ";")throw(Error("; expected", lex.line));
-		getc(lex);
-
-		pushExprInPol = false;
-		expression();
-		vector<Lexeme> operOfFor = precalc.expr;
-		precalc.expr.clear();
-		pushExprInPol = true;
-
-		if(lex.s!=")")throw(Error(") expected", lex.line));
-		getc(lex);
-		Operator();
-
-		pol.push(operOfFor);
-		pol.push((int) pol.pol.size() - 5);
-
-		elemOfPoliz ee(elemOfPoliz::TRANS);
-		pol.push(ee);
-	}
-	else {
-		expression();
-		if (lex.s != ";")throw(Error("; expected", lex.line));
-
-		getc(lex);
-		expression(); //условие
-
 		pol.push(-1);
 
 		elemOfPoliz e(elemOfPoliz::RETRANS);
@@ -635,13 +618,47 @@ void syntax_analyzer::cfor_operator() { //dangeous item, need to check // poliz 
 
 		elemOfPoliz ee(elemOfPoliz::TRANS);
 		pol.push(ee);
+	} else {
+		expression();
+		if (lex.s != ";")throw(Error("; expected", lex.line));
+
+		getc(lex);
+		pushExprInPol = true;
+		expression(); //условие
+
+		int indexOfAdressOfExitOfFor = (int) pol.pol.size();
+		pol.push(-1);
+
+		elemOfPoliz e(elemOfPoliz::RETRANS);
+		pol.push(e);
+
+		if (lex.s != ";")throw(Error("; expected", lex.line));
+		getc(lex);
+
+		pushExprInPol = false;
+		expression();
+		vector<Lexeme> operOfFor = precalc.expr;
+		precalc.expr.clear();
+		pushExprInPol = true;
+
+		if (lex.s != ")")throw(Error(") expected", lex.line));
+		getc(lex);
+		Operator();
+
+		pol.push(operOfFor);
+		pol.push((int) pol.pol.size() - 5);
+
+		elemOfPoliz ee(elemOfPoliz::TRANS);
+		pol.push(ee);
+
+		pol.pol[indexOfAdressOfExitOfFor] = (int) pol.pol.size();
 	}
 }
 void syntax_analyzer::pfor_operator() {
 	name();
 	//getc(lex);
 	//maybe := - mistake. we don't have this operator....
-	if(lex.s!="=")throw(Error("= expected, but not this heresy", lex.line));
+	if (lex.s != "=")throw(Error("= expected, but not this heresy", lex.line));
 	getc(lex);
 	expression();
 	way();
