@@ -285,10 +285,10 @@ struct syntax_analyzer {
 	void special_operator();
 	void dowhile_operator();
 	void for_operator();
-	void cfor_operator();
+	void cfor_operator(int&);
 	void pfor_operator();
 	void way();
-	void else_branch();
+	void else_branch(int);
 
 };
 

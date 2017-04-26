@@ -345,7 +345,7 @@ void syntax_analyzer::atom() { //poliz working
 	} else {
 		if (lex.t == IDENT) {
 			name();
-			getc(lex);// или не здесь, а перед инк. // ЭТО БЫЛО У ОЛИ. У ЮРЫ НЕ БЫЛО
+			//getc(lex);// или не здесь, а перед инк. // ЭТО БЫЛО У ОЛИ. У ЮРЫ НЕ БЫЛО //если убрать, то работает (by Yura)
 			if (lex.s == ";")return;// expression must be finished for this time
 		} else
 			special_atom();
@@ -452,7 +452,7 @@ void syntax_analyzer::list_of_elements() { //poliz working
 }
 void syntax_analyzer::element() {//poliz working here
 	if (lex.s == "<<") {
-		whileOrForBody ? addToExpr() : pol.push(string("<<"));
+		pol.push(string("<<"));
 
 		getc(lex);
 		if (lex.strbool == true) {
@@ -464,7 +464,7 @@ void syntax_analyzer::element() {//poliz working here
 			return;
 		} else expression();
 	} else if (lex.s == ">>") {
-		whileOrForBody ? addToExpr() : pol.push(string(">>"));
+		pol.push(string(">>"));
 		getc(lex);
 		//pol.push(Ident(lex.s));
 		name();
@@ -578,6 +578,9 @@ void syntax_analyzer::for_operator() {
 		}
 		i++;
 	}
+
+	int indexOfAdressOfExitOfFor; //жуткий костыль. надо передавать из фора индекс, где должно быть записан индекс след элемента в полизе за фором
+
 	if (lex.s != "int" && lex.s != "double" && lex.s != "bool") {
 		buff = lex; bool t = false;
 		int i = 1;
@@ -587,15 +590,15 @@ void syntax_analyzer::for_operator() {
 			i++;
 		}
 		if (t)pfor_operator();
-		else cfor_operator();
+		else cfor_operator(indexOfAdressOfExitOfFor);
 	} else {
-		cfor_operator();
+		cfor_operator(indexOfAdressOfExitOfFor);
 	}
-	if (t) else_branch();
+	if (t) else_branch(indexOfAdressOfExitOfFor);
 
 	whileOrForBody = false;
 }
-void syntax_analyzer::cfor_operator() { //dangeous item, need to check // poliz here
+void syntax_analyzer::cfor_operator(int& indexOfAdressOfExitOfFor) { //dangeous item, need to check // poliz here
 										// you mustn't check the for existence
 	if (lex.s == "int" || lex.s == "bool" || lex.s == "double") {
 		description();
@@ -632,10 +635,19 @@ void syntax_analyzer::cfor_operator() { //dangeous item, need to check // poliz 
 		pushExprInPol = true;
 		expression(); //условие
 
-		int indexOfAdressOfExitOfFor = (int) pol.pol.size();
+		int indexOfAdressOfElseOfFor = (int) pol.pol.size();
 		pol.push(-1);
 
 		elemOfPoliz e(elemOfPoliz::RETRANS);
+		pol.push(e);
+
+		int indexOfStartOfFor= (int) pol.pol.size();
+
+		pol.push(pol.pol[(int) pol.pol.size() - 3]); //добавляю условие повторно для выхода, а не для элза
+
+		indexOfAdressOfExitOfFor = (int) pol.pol.size();
+		pol.push(-1);
+
 		pol.push(e);
 
 		if (lex.s != ";")throw(Error("; expected", lex.line));
@@ -652,12 +664,12 @@ void syntax_analyzer::cfor_operator() { //dangeous item, need to check // poliz 
 		Operator();
 
 		pol.push(operOfFor);
-		pol.push((int) pol.pol.size() - 5);
+		pol.push(indexOfStartOfFor);
 
 		elemOfPoliz ee(elemOfPoliz::TRANS);
 		pol.push(ee);
 
-		pol.pol[indexOfAdressOfExitOfFor] = (int) pol.pol.size();
+		pol.pol[indexOfAdressOfElseOfFor] = (int) pol.pol.size();
 	}
 }
 void syntax_analyzer::pfor_operator() {
@@ -677,8 +689,10 @@ void syntax_analyzer::way() {
 	if (lex.s != "to" && lex.s != "downto")throw(Error("to or downto expected,  but not this heresy", lex.line));
 	getc(lex);
 }
-void syntax_analyzer::else_branch() {
+void syntax_analyzer::else_branch(int indexOfAdressOfExitOfFor) {
 	if (lex.s != "else")throw(Error("else expected, but not this heresy", lex.line));
 	getc(lex);
 	Operator();
+
+	pol.pol[indexOfAdressOfExitOfFor] = (int)pol.pol.size();
 }

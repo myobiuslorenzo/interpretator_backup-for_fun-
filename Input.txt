@@ -3,14 +3,23 @@ int a=4;
 
 for(a=1; a<10; a++){
 	cinout<<a;
-}
-
-do {
-	cinout<<a+1;
-} while(a<15);
+} else cinout<<4;
 
 return 0;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
