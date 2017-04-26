@@ -603,10 +603,22 @@ void syntax_analyzer::cfor_operator(int& indexOfAdressOfExitOfFor) { //dangeous 
 	if (lex.s == "int" || lex.s == "bool" || lex.s == "double") {
 		description();
 
-		expression();
+		pushExprInPol = true;
+		expression(); //условие
+
+		int indexOfAdressOfElseOfFor = (int) pol.pol.size();
 		pol.push(-1);
 
 		elemOfPoliz e(elemOfPoliz::RETRANS);
+		pol.push(e);
+
+		int indexOfStartOfFor = (int) pol.pol.size();
+
+		pol.push(pol.pol[(int) pol.pol.size() - 3]); //добавляю условие повторно для выхода, а не для элза
+
+		indexOfAdressOfExitOfFor = (int) pol.pol.size();
+		pol.push(-1);
+
 		pol.push(e);
 
 		if (lex.s != ";")throw(Error("; expected", lex.line));
@@ -623,10 +635,12 @@ void syntax_analyzer::cfor_operator(int& indexOfAdressOfExitOfFor) { //dangeous 
 		Operator();
 
 		pol.push(operOfFor);
-		pol.push((int) pol.pol.size() - 5);
+		pol.push(indexOfStartOfFor);
 
 		elemOfPoliz ee(elemOfPoliz::TRANS);
 		pol.push(ee);
+
+		pol.pol[indexOfAdressOfElseOfFor] = (int) pol.pol.size();
 	} else {
 		expression();
 		if (lex.s != ";")throw(Error("; expected", lex.line));

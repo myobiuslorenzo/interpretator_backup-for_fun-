@@ -1,12 +1,14 @@
 int main(){
-int a=4;
 
-for(a=1; a<10; a++){
+for(int a=1; a<10; a++){
 	cinout<<a;
 } else cinout<<4;
 
 return 0;
 }
+
+
+
 
 
 
