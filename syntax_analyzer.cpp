@@ -452,8 +452,6 @@ void syntax_analyzer::list_of_elements() { //poliz working
 }
 void syntax_analyzer::element() {//poliz working here
 	if (lex.s == "<<") {
-		pol.push(string("<<"));
-
 		getc(lex);
 		if (lex.strbool == true) {
 			pol.push(lex.s);
@@ -463,11 +461,14 @@ void syntax_analyzer::element() {//poliz working here
 			pol.push(Ident('\n'));
 			return;
 		} else expression();
+
+		pol.push(string("<<"));
 	} else if (lex.s == ">>") {
-		pol.push(string(">>"));
 		getc(lex);
 		//pol.push(Ident(lex.s));
 		name();
+
+		pol.push(string(">>"));
 	} else throw(Error("<< or >> expected", lex.line));
 }
 void syntax_analyzer::composite_operator() { //poliz working

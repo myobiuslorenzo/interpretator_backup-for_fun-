@@ -136,10 +136,11 @@ bool Poliz::find(string s, vector<string>& q) {
 	for (auto t : q)if (t == s)return true;
 	else return false;
 }
-Var Poliz::find(string s) {
+Var Poliz::find(string s,int r=0) {
 	for(auto t:var) {
 		if (t.first == s)return t.second;
 	}
+	r = -1;
 }
 void Poliz::assign(elemOfPoliz& p, elemOfPoliz& q) {
 	for (auto t : var) {
@@ -174,6 +175,9 @@ string Poliz::get_expr(vector<Lexeme>& expr) {
 	}
 	return res;
 }
+bool Poliz::logic(string s) {
+	return 0;
+}
 void Poliz::scan() {
 	//vector<string> rightradical;//калькулятор разберется сам с правоассоциативными операциями ?
 	vector<string> unary_oper;
@@ -191,7 +195,9 @@ void Poliz::scan() {
 		//	cout << "1";
 			ex = get_expr(pol[i].expr);
 			ld elem;
+			cout << ex << endl;
 			elem = precalc.calculate(ex);
+			cout << elem << endl;
 			Ident TM(elem);
 			elemOfPoliz W(TM);
 			stack.push(W);
@@ -207,51 +213,34 @@ void Poliz::scan() {
 			break;
 		case OPER:
 		{
-			cout << pol[i].oper;//почему константы имеют тип операции???!
-			cout << "why constants have type \"operation\" ?\n";
-			/*cout << "4";
-			if (!find(pol[i].oper, unary_oper)) {
-				auto p = stack.pop();
-				auto q = stack.pop();
-				//find in map
-				auto x=find(p.i.name);
-				auto y=find(q.i.name);
-				string r1= get(x),r2=get(y);
-				ld elem;
-
-				elem = precalc.calculate(r1 + pol[i].oper + r2);
-
-				if (pol[i].oper == "=") {
-					assign(p, q);
-				}
-				Ident TM(elem);
-				elemOfPoliz W(TM);
-				stack.push(W);
-			}
-			else {
-			*/
 			if (pol[i].oper == "<<") {
 				elemOfPoliz u = stack.pop();
-				//Var x = find(pol[i].i.name);
-				Var x = find(u.oper);
+				int r = 0;
+				Var x = find(u.oper,r);
 				switch (u.i.t) {
-				case INT:
-					cout << x.i;
+				case INT: 
+					if(u.t==TRANS)cout << x.i;
+					else cout << u.i.i;
 					break;
 				case DOUBLE:
-					cout << x.d;
+					if (u.t == TRANS)cout << x.d;
+					else cout << u.i.d;
 					break;
 				case LONG_DOUBLE:
-					cout << x.ldd;
+					if (u.t == TRANS)cout << x.ldd;
+					else cout << u.i.ldd;
 					break;
 				case BOOL:
-					cout << x.b;
+					if (u.t == TRANS)cout << x.b;
+					else cout << u.i.b;
 					break;
 				case CHAR:
-					cout << x.c;
+					if (u.t == TRANS)cout << x.c;
+					else cout << u.i.c;
 					break;
 				case STRING:
-					cout << pol[i].i.name;
+					if (u.t == TRANS)cout << pol[i].i.name;
+					else cout << u.i.name;
 					break;
 				}
 			}
@@ -298,7 +287,7 @@ void Poliz::scan() {
 		}
 		break;
 		case TRANS:  //безусловный переход. Он тоже нужен, и без него никак.
-		//	cout << "6";
+			//cout << "6";
 			auto a = stack.pop();
 			stack.clear();
 			i = a.i.i-1;//иначе оказаться можем на ячейку дальше, чем надо

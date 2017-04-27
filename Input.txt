@@ -1,11 +1,55 @@
 int main(){
-
-for(int a=1; a<10; a++){
-	cinout<<a;
-} else cinout<<4;
-
+cinout<<8-3;
+cinout<<9+1;
 return 0;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

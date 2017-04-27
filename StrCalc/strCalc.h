@@ -681,7 +681,7 @@ public:
 
 	map <string, double> valueOfVariables;
 
-	int Calc();
+	long double Calc();
 
 	void Translate()//STRING вообще не используется//протести работу с синусом
 	{
@@ -1348,6 +1348,9 @@ public:
 };
 
 ld Calc() {
+	infs.close();
+	infs.open("InForCalc.txt");
+
 	string tmp;
 	expression expr;
 	while (true) {

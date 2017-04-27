@@ -8,7 +8,7 @@ int main(){
 		syntax_analyzer SA("Output.txt",LA.BOL.finalmasoflex);
 
 		SA.program();
-		//SA.pol.scan();
+		SA.pol.scan();
 
 /*		Precalculator p;
 		string s;
@@ -16,7 +16,7 @@ int main(){
 		cout<<p.calculate(s);*/
 		
 
-		cout << "OK\n";
+		cout << "\nOK\n";
     }
     catch(Error er){
 		cout << "ERROR : " << er.str << " line: " << er.line << endl;
