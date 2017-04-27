@@ -136,11 +136,12 @@ bool Poliz::find(string s, vector<string>& q) {
 	for (auto t : q)if (t == s)return true;
 	else return false;
 }
-Var Poliz::find(string s,int r=0) {
+Var Poliz::find(string s) {
 	for(auto t:var) {
 		if (t.first == s)return t.second;
 	}
-	r = -1;
+	Var v;
+	return v;
 }
 void Poliz::assign(elemOfPoliz& p, elemOfPoliz& q) {
 	for (auto t : var) {
@@ -161,7 +162,7 @@ bool Poliz::find_var(string s, Var& v) {
 	}
 	return false;
 }
-string Poliz::get_expr(vector<Lexeme>& expr) {
+/*string Poliz::get_expr(vector<Lexeme>& expr) {
 	string s,res="";
 	for (int i = 0; i < expr.size(); ++i) {
 		Var V;
@@ -174,7 +175,7 @@ string Poliz::get_expr(vector<Lexeme>& expr) {
 		}
 	}
 	return res;
-}
+}*/
 bool Poliz::logic(string s) {
 	return 0;
 }
@@ -193,11 +194,12 @@ void Poliz::scan() {
 		case EXPR:
 		{
 		//	cout << "1";
+			for (auto t : pol[i].expr)cout << t.s << ' ';
 			ex = get_expr(pol[i].expr);
 			ld elem;
-			cout << ex << endl;
+			//cout << ex << endl;
 			elem = precalc.calculate(ex);
-			cout << elem << endl;
+		//	cout << elem << endl;
 			Ident TM(elem);
 			elemOfPoliz W(TM);
 			stack.push(W);
@@ -205,6 +207,7 @@ void Poliz::scan() {
 			break;
 		case IDENT:
 			//cout << "2";
+			cout << pol[i].i.name;
 			stack.push(pol[i]);
 			break;
 		case CONST:
@@ -215,8 +218,7 @@ void Poliz::scan() {
 		{
 			if (pol[i].oper == "<<") {
 				elemOfPoliz u = stack.pop();
-				int r = 0;
-				Var x = find(u.oper,r);
+				Var x = find(u.oper);
 				switch (u.i.t) {
 				case INT: 
 					if(u.t==TRANS)cout << x.i;
@@ -272,6 +274,60 @@ void Poliz::scan() {
 					cin >> pol[i].i.name;
 					break;
 				}
+			} else if (pol[i].oper == "=") {
+				elemOfPoliz u = stack.pop();
+				elemOfPoliz w = stack.pop();
+				assign(u, w);
+			}else{
+				elemOfPoliz u = stack.pop();
+				elemOfPoliz w = stack.pop();
+				bool t;
+				switch (u.i.t) {
+					case INT:
+						if (pol[i].oper == ">")t = (u.i.i > w.i.i);
+						if (pol[i].oper == "<")t = (u.i.i < w.i.i);
+						if (pol[i].oper == "!=")t = (u.i.i != w.i.i);
+						if (pol[i].oper == "==")t = (u.i.i == w.i.i);
+						if (pol[i].oper == "&&")t = (u.i.i && w.i.i);
+						if (pol[i].oper == "||")t = (u.i.i || w.i.i);
+						break;
+					case DOUBLE:
+						if (pol[i].oper == ">")t = (u.i.d > w.i.d);
+						if (pol[i].oper == "<")t = (u.i.d < w.i.d);
+						if (pol[i].oper == "!=")t = (u.i.d != w.i.d);
+						if (pol[i].oper == "==")t = (u.i.d == w.i.d);
+						if (pol[i].oper == "&&")t = (u.i.d && w.i.d);
+						if (pol[i].oper == "||")t = (u.i.d || w.i.d);
+						break;
+					case LONG_DOUBLE:
+						if (pol[i].oper == ">")t = (u.i.ldd > w.i.ldd);
+						if (pol[i].oper == "<")t = (u.i.ldd < w.i.ldd);
+						if (pol[i].oper == "!=")t = (u.i.ldd != w.i.ldd);
+						if (pol[i].oper == "==")t = (u.i.ldd == w.i.ldd);
+						if (pol[i].oper == "&&")t = (u.i.ldd && w.i.ldd);
+						if (pol[i].oper == "||")t = (u.i.ldd || w.i.ldd);
+						break;
+					case BOOL:
+						if (pol[i].oper == ">")t = (u.i.b > w.i.b);
+						if (pol[i].oper == "<")t = (u.i.b < w.i.b);
+						if (pol[i].oper == "!=")t = (u.i.b != w.i.b);
+						if (pol[i].oper == "==")t = (u.i.b == w.i.b);
+						if (pol[i].oper == "&&")t = (u.i.b && w.i.b);
+						if (pol[i].oper == "||")t = (u.i.b || w.i.b);
+						break;
+					case CHAR:
+						if (pol[i].oper == ">")t = (u.i.c > w.i.c);
+						if (pol[i].oper == "<")t = (u.i.c < w.i.c);
+						if (pol[i].oper == "!=")t = (u.i.c != w.i.c);
+						if (pol[i].oper == "==")t = (u.i.c == w.i.c);
+						if (pol[i].oper == "&&")t = (u.i.c && w.i.c);
+						if (pol[i].oper == "||")t = (u.i.c || w.i.c);
+						break;
+					case STRING:
+						cout << "\n?????!\n";
+						break;
+				}
+
 			}
 		}
 			break;

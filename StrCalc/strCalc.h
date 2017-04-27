@@ -1438,6 +1438,7 @@ ld Calc() {
 		}
 		cout << tmp << ": Command not found!\n";
 	}
+
 	return 0;
 }
 

@@ -189,7 +189,7 @@ struct Poliz { //если тебя что-то не устраивает в ко
 	map<string, Var> var;
 	vector<elemOfPoliz>pol;
 	string get(Var& v);
-	Var find(string s,int r);
+	Var find(string s);
 	void push(elemOfPoliz);
 	void push(string s, double d);
 	void push(string s, int d);
