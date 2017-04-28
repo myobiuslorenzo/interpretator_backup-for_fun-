@@ -96,7 +96,18 @@ void Poliz::push(string d) {
 void Poliz::push(vector<Lexeme> v) {
 	pol.push_back(elemOfPoliz(v));
 }
+void Poliz::push(string s, elemOfPoliz::typeElemOfPoliz t, typeIdent type) {
+	if (t == IDENT) {
+		Var v;
+		Var c = find(s);
+		if (c.error == "error") {
+			v.t = type;
+			var.insert(make_pair(s, v));
+		}
+	}
+	pol.push_back(elemOfPoliz(s,t));
 
+}
 string Poliz::get(Var& v) {
 	stringstream ss;
 	switch (v.t) {
@@ -140,10 +151,26 @@ Var Poliz::find(string s) {
 	for(auto t:var) {
 		if (t.first == s)return t.second;
 	}
+	Var v;
+	v.error = "error";
+	return v;
 }
 void Poliz::assign(elemOfPoliz& p, elemOfPoliz& q) {
-	for (auto t : var) {
-		if (t.first == p.i.name)t.second = find(q.i.name);
+	Var v=find(p.i.name);
+	for (auto& t : var) {
+		if (t.first == p.i.name) {
+			//if (v.error != "error")t.second = v;
+			//else {
+				Var gg;
+				t.second.ldd = q.i.ldd;
+				t.second.i = q.i.i;
+				t.second.b = q.i.b;
+				t.second.c = q.i.c;
+				t.second.d = q.i.d;
+
+				v = find(p.i.name);
+		//	}
+		}
 	}
 }
 void Poliz::assign(elemOfPoliz& p, Var& q) {
@@ -182,13 +209,16 @@ void Poliz::scan() {
 	Precalculator precalc;
 	size_t i = 0;
 	string ex;
+	/*for (auto t : pol) {
+		cout << t.i.name << ' ' << t.oper << ' ';
+		for (auto y : t.expr)cout << y.s << ' ';
+		cout << endl;
+	}*/
 	Stack<elemOfPoliz> stack;// imagination
-	//cout << "trololo";
 	while (i < pol.size()) {
 		switch (pol[i].t) {
 		case EXPR:
 		{
-		//	cout << "1";
 			ex = get_expr(pol[i].expr);
 			ld elem;
 			elem = precalc.calculate(ex);
@@ -198,61 +228,61 @@ void Poliz::scan() {
 		}
 			break;
 		case IDENT:
-			//cout << "2";
+			//cout << pol[i].i.name;
 			stack.push(pol[i]);
 			break;
 		case CONST:
-			//cout << "3";
 			stack.push(pol[i]);
 			break;
 		case OPER:
 		{
-			cout << pol[i].oper;//почему константы имеют тип операции???!
-			cout << "why constants have type \"operation\" ?\n";
-			/*cout << "4";
-			if (!find(pol[i].oper, unary_oper)) {
-				auto p = stack.pop();
-				auto q = stack.pop();
-				//find in map
-				auto x=find(p.i.name);
-				auto y=find(q.i.name);
-				string r1= get(x),r2=get(y);
-				ld elem;
-
-				elem = precalc.calculate(r1 + pol[i].oper + r2);
-
-				if (pol[i].oper == "=") {
-					assign(p, q);
-				}
-				Ident TM(elem);
-				elemOfPoliz W(TM);
-				stack.push(W);
-			}
-			else {
-			*/
 			if (pol[i].oper == "<<") {
 				elemOfPoliz u = stack.pop();
-				//Var x = find(pol[i].i.name);
-				Var x = find(u.oper);
-				switch (u.i.t) {
-				case INT:
-					cout << x.i;
-					break;
-				case DOUBLE:
-					cout << x.d;
-					break;
-				case LONG_DOUBLE:
+				Var x = find(u.i.name);
+				if (x.error == "error") {
+					switch (u.i.t) {
+					case INT:
+						cout << u.i.i;
+						break;
+					case DOUBLE:
+						cout << u.i.d;
+						break;
+					case LONG_DOUBLE:
+						cout << u.i.ldd;
+						break;
+					case BOOL:
+					    cout << u.i.b;
+						break;
+					case CHAR:
+						cout << u.i.c;
+						break;
+					case STRING:
+					    cout << u.i.name;
+						break;
+					}
+				}
+				else {
+					/*switch (x.t) {
+					case INT:
+						cout << x.i;
+						break;
+					case DOUBLE:
+					    cout << x.d;
+						break;
+					case LONG_DOUBLE:
+						cout << x.ldd;
+						break;
+					case BOOL:
+						cout << x.b;
+						break;
+					case CHAR:
+						cout << x.c;
+						break;
+					case STRING:
+						cout << pol[i].i.name;
+						break;
+					}*/
 					cout << x.ldd;
-					break;
-				case BOOL:
-					cout << x.b;
-					break;
-				case CHAR:
-					cout << x.c;
-					break;
-				case STRING:
-					cout << pol[i].i.name;
-					break;
 				}
 			}
 			else if (pol[i].oper == ">>") {
@@ -283,6 +313,60 @@ void Poliz::scan() {
 					cin >> pol[i].i.name;
 					break;
 				}
+			} else if (pol[i].oper == "=") {
+				elemOfPoliz u = stack.pop();
+				elemOfPoliz w = stack.pop();
+				assign(w, u);
+			}else{
+				elemOfPoliz u = stack.pop();
+				elemOfPoliz w = stack.pop();
+				bool t;
+				switch (u.i.t) {
+					case INT:
+						if (pol[i].oper == ">")t = (u.i.i > w.i.i);
+						if (pol[i].oper == "<")t = (u.i.i < w.i.i);
+						if (pol[i].oper == "!=")t = (u.i.i != w.i.i);
+						if (pol[i].oper == "==")t = (u.i.i == w.i.i);
+						if (pol[i].oper == "&&")t = (u.i.i && w.i.i);
+						if (pol[i].oper == "||")t = (u.i.i || w.i.i);
+						break;
+					case DOUBLE:
+						if (pol[i].oper == ">")t = (u.i.d > w.i.d);
+						if (pol[i].oper == "<")t = (u.i.d < w.i.d);
+						if (pol[i].oper == "!=")t = (u.i.d != w.i.d);
+						if (pol[i].oper == "==")t = (u.i.d == w.i.d);
+						if (pol[i].oper == "&&")t = (u.i.d && w.i.d);
+						if (pol[i].oper == "||")t = (u.i.d || w.i.d);
+						break;
+					case LONG_DOUBLE:
+						if (pol[i].oper == ">")t = (u.i.ldd > w.i.ldd);
+						if (pol[i].oper == "<")t = (u.i.ldd < w.i.ldd);
+						if (pol[i].oper == "!=")t = (u.i.ldd != w.i.ldd);
+						if (pol[i].oper == "==")t = (u.i.ldd == w.i.ldd);
+						if (pol[i].oper == "&&")t = (u.i.ldd && w.i.ldd);
+						if (pol[i].oper == "||")t = (u.i.ldd || w.i.ldd);
+						break;
+					case BOOL:
+						if (pol[i].oper == ">")t = (u.i.b > w.i.b);
+						if (pol[i].oper == "<")t = (u.i.b < w.i.b);
+						if (pol[i].oper == "!=")t = (u.i.b != w.i.b);
+						if (pol[i].oper == "==")t = (u.i.b == w.i.b);
+						if (pol[i].oper == "&&")t = (u.i.b && w.i.b);
+						if (pol[i].oper == "||")t = (u.i.b || w.i.b);
+						break;
+					case CHAR:
+						if (pol[i].oper == ">")t = (u.i.c > w.i.c);
+						if (pol[i].oper == "<")t = (u.i.c < w.i.c);
+						if (pol[i].oper == "!=")t = (u.i.c != w.i.c);
+						if (pol[i].oper == "==")t = (u.i.c == w.i.c);
+						if (pol[i].oper == "&&")t = (u.i.c && w.i.c);
+						if (pol[i].oper == "||")t = (u.i.c || w.i.c);
+						break;
+					case STRING:
+						cout << "\n?????!\n";
+						break;
+				}
+
 			}
 		}
 			break;
@@ -298,7 +382,7 @@ void Poliz::scan() {
 		}
 		break;
 		case TRANS:  //безусловный переход. Он тоже нужен, и без него никак.
-		//	cout << "6";
+			//cout << "6";
 			auto a = stack.pop();
 			stack.clear();
 			i = a.i.i-1;//иначе оказаться можем на ячейку дальше, чем надо
