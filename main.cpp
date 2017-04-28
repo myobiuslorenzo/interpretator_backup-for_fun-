@@ -1,9 +1,9 @@
-#include "includes.h"
+git#include "includes.h"
 #include "interface.h"
 
 int main(){
 	try { //писать тут
-		LecsAnalyzer LA; 
+		LecsAnalyzer LA;
 		LA.Analyze();
 		syntax_analyzer SA("Output.txt",LA.BOL.finalmasoflex);
 
@@ -14,9 +14,10 @@ int main(){
 		string s;
 		cin >> s;
 		cout<<p.calculate(s);*/
-		
+
 
 		cout << "\nOK\n";
+		cout << "Glory to God!";
     }
     catch(Error er){
 		cout << "ERROR : " << er.str << " line: " << er.line << endl;

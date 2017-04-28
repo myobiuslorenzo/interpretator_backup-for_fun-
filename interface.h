@@ -62,13 +62,41 @@ struct Ident {
 };
 
 struct Var {
+	
 	typeIdent t;
-
+	string error = "";
 	double d;
 	int i;
 	char c;
 	bool b;
 	ld ldd;
+	void operator =(Var q) {
+		if (t == INT && q.t == CHAR)
+			i = q.c;
+		else if (t == CHAR && q.t == INT)
+			c = q.i;
+		else if (t == INT && q.t == BOOL)
+			i = q.b;
+		else if (t == BOOL && q.t == INT)
+			b = q.i;
+		else {
+			d = q.d;
+			i = q.i;
+			c = q.c;
+			b = q.b;
+			ldd = q.ldd;
+		}
+	}
+	/*void operator = (Ident q) {
+			t = q.t;
+			i = q.i;
+			c = q.c;
+			b = q.b;
+			ldd = q.ldd;
+			d = q.d;
+	}*/
+	Var() {};
+	~Var() {};
 };
 
 template <class T>
@@ -200,7 +228,7 @@ struct Poliz { //если тебя что-то не устраивает в ко
 	void push(char d);
 	void push(bool d);
 	void push(string d);
-	void push(elemOfPoliz::typeElemOfPoliz);
+	void push(string s,elemOfPoliz::typeElemOfPoliz, typeIdent type);
 	void push(vector<Lexeme>);
 
 	void Write();

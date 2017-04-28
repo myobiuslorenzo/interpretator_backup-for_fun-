@@ -2,6 +2,7 @@
 #include "includes.h"
 Lexeme lex;
 Lexeme buff;
+typeIdent TYPE;
 size_t index = 0;
 string let = ("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
 string buff_type;
@@ -109,7 +110,7 @@ void syntax_analyzer::name() { //вот тут я не уверен, что вс
 	}
 
 	if (!exprIsNow)
-		pol.push(lex.s, elemOfPoliz::typeElemOfPoliz::IDENT);
+		pol.push(lex.s, elemOfPoliz::typeElemOfPoliz::IDENT, TYPE);
 
 	getc(lex);
 }
@@ -161,10 +162,12 @@ void syntax_analyzer::expression() {
 		assigment = true;
 		exprIsNow = false;
 		name();
+		Lexeme costylek = lex;
 		getc(lex);
 		//SEA.checkop(tmp, lex);
 		expression();
-
+		elemOfPoliz e(costylek.s);
+		pol.push(e);
 		pushExprInPol = false;
 	} else {
 		exprIsNow = true;
@@ -204,8 +207,12 @@ void syntax_analyzer::expressionForWhile() { //poliz working
 	if (t.s == "=" && lex.t == IDENT) {
 		name();
 		getc(lex);
+		Lexeme costylek = lex;
+		getc(lex);
 		//SEA.checkop(tmp, lex);
 		expression();
+		elemOfPoliz e(costylek.s);
+		pol.push(e);
 	} else {
 		expression_1ForWhile();
 	}
@@ -500,6 +507,7 @@ void syntax_analyzer::description() {
 	section();
 	while (lex.s == ",") {
 		getc(lex);
+		SemA.push_name_in_set(lex);
 		section();
 	}if (lex.s != ";")throw(Error(";  expected...where is my ; ? :(", lex.line));
 	getc(lex);
@@ -516,12 +524,16 @@ void syntax_analyzer::section() {
 	if (t) {
 		name();
 		//now , after name calling, lex.s=="="
-		getc(lex);//next lexeme
+	//	getc(lex);//next lexeme
 		expression();
 	} else name();
 }
 void ::syntax_analyzer::type() {
 	if (lex.s != "int" && lex.s != "bool" && lex.s != "double"&&lex.s != "char")throw(Error("Unknown type", lex.line));
+	if (lex.s == "int")TYPE = INT;
+	else if (lex.s == "bool")TYPE = BOOL;
+	else if (lex.s == "double")TYPE = LONG_DOUBLE;//costyl
+	else if (lex.s == "char")TYPE = CHAR;
 	getc(lex);
 }
 void syntax_analyzer::special_operator() {

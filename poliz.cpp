@@ -96,7 +96,18 @@ void Poliz::push(string d) {
 void Poliz::push(vector<Lexeme> v) {
 	pol.push_back(elemOfPoliz(v));
 }
+void Poliz::push(string s, elemOfPoliz::typeElemOfPoliz t, typeIdent type) {
+	if (t == IDENT) {
+		Var v;
+		Var c = find(s);
+		if (c.error == "error") {
+			v.t = type;
+			var.insert(make_pair(s, v));
+		}
+	}
+	pol.push_back(elemOfPoliz(s,t));
 
+}
 string Poliz::get(Var& v) {
 	stringstream ss;
 	switch (v.t) {
@@ -141,11 +152,25 @@ Var Poliz::find(string s) {
 		if (t.first == s)return t.second;
 	}
 	Var v;
+	v.error = "error";
 	return v;
 }
 void Poliz::assign(elemOfPoliz& p, elemOfPoliz& q) {
-	for (auto t : var) {
-		if (t.first == p.i.name)t.second = find(q.i.name);
+	Var v=find(p.i.name);
+	for (auto& t : var) {
+		if (t.first == p.i.name) {
+			//if (v.error != "error")t.second = v;
+			//else {
+				Var gg;
+				t.second.ldd = q.i.ldd;
+				t.second.i = q.i.i;
+				t.second.b = q.i.b;
+				t.second.c = q.i.c;
+				t.second.d = q.i.d;
+
+				v = find(p.i.name);
+		//	}
+		}
 	}
 }
 void Poliz::assign(elemOfPoliz& p, Var& q) {
@@ -187,14 +212,17 @@ void Poliz::scan() {
 	Precalculator precalc;
 	size_t i = 0;
 	string ex;
+	/*for (auto t : pol) {
+		cout << t.i.name << ' ' << t.oper << ' ';
+		for (auto y : t.expr)cout << y.s << ' ';
+		cout << endl;
+	}*/
 	Stack<elemOfPoliz> stack;// imagination
-	//cout << "trololo";
 	while (i < pol.size()) {
 		switch (pol[i].t) {
 		case EXPR:
 		{
 		//	cout << "1";
-			for (auto t : pol[i].expr)cout << t.s << ' ';
 			ex = get_expr(pol[i].expr);
 			ld elem;
 			//cout << ex << endl;
@@ -207,43 +235,60 @@ void Poliz::scan() {
 			break;
 		case IDENT:
 			//cout << "2";
-			cout << pol[i].i.name;
 			stack.push(pol[i]);
 			break;
 		case CONST:
-			//cout << "3";
 			stack.push(pol[i]);
 			break;
 		case OPER:
 		{
 			if (pol[i].oper == "<<") {
 				elemOfPoliz u = stack.pop();
-				Var x = find(u.oper);
-				switch (u.i.t) {
-				case INT: 
-					if(u.t==TRANS)cout << x.i;
-					else cout << u.i.i;
-					break;
-				case DOUBLE:
-					if (u.t == TRANS)cout << x.d;
-					else cout << u.i.d;
-					break;
-				case LONG_DOUBLE:
-					if (u.t == TRANS)cout << x.ldd;
-					else cout << u.i.ldd;
-					break;
-				case BOOL:
-					if (u.t == TRANS)cout << x.b;
-					else cout << u.i.b;
-					break;
-				case CHAR:
-					if (u.t == TRANS)cout << x.c;
-					else cout << u.i.c;
-					break;
-				case STRING:
-					if (u.t == TRANS)cout << pol[i].i.name;
-					else cout << u.i.name;
-					break;
+				Var x = find(u.i.name);
+				if (x.error == "error") {
+					switch (u.i.t) {
+					case INT:
+						cout << u.i.i;
+						break;
+					case DOUBLE:
+						cout << u.i.d;
+						break;
+					case LONG_DOUBLE:
+						cout << u.i.ldd;
+						break;
+					case BOOL:
+					    cout << u.i.b;
+						break;
+					case CHAR:
+						cout << u.i.c;
+						break;
+					case STRING:
+					    cout << u.i.name;
+						break;
+					}
+				}
+				else {
+					/*switch (x.t) {
+					case INT:
+						cout << x.i;
+						break;
+					case DOUBLE:
+					    cout << x.d;
+						break;
+					case LONG_DOUBLE:
+						cout << x.ldd;
+						break;
+					case BOOL:
+						cout << x.b;
+						break;
+					case CHAR:
+						cout << x.c;
+						break;
+					case STRING:
+						cout << pol[i].i.name;
+						break;
+					}*/
+					cout << x.ldd;
 				}
 			}
 			else if (pol[i].oper == ">>") {
@@ -277,7 +322,7 @@ void Poliz::scan() {
 			} else if (pol[i].oper == "=") {
 				elemOfPoliz u = stack.pop();
 				elemOfPoliz w = stack.pop();
-				assign(u, w);
+				assign(w, u);
 			}else{
 				elemOfPoliz u = stack.pop();
 				elemOfPoliz w = stack.pop();
@@ -343,7 +388,7 @@ void Poliz::scan() {
 		}
 		break;
 		case TRANS:  //безусловный переход. ќн тоже нужен, и без него никак.
-			//cout << "6";
+		//	cout << "6";
 			auto a = stack.pop();
 			stack.clear();
 			i = a.i.i-1;//иначе оказатьс€ можем на €чейку дальше, чем надо
