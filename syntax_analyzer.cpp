@@ -505,7 +505,7 @@ void syntax_analyzer::composite_operator() { //poliz working
 		throw(Error("} expected", lex.line));
 }
 void syntax_analyzer::description() {
-	descript = true;
+	//descript = true;
 	type();
 
 	SemA.push_name_in_set(lex);
@@ -518,7 +518,7 @@ void syntax_analyzer::description() {
 	}if (lex.s != ";")throw(Error(";  expected...where is my ; ? :(", lex.line));
 	getc(lex); //ЕСЛИ ЭТО ЗАКОММЕНТИТЬ, ТО ПРИСВАИВАНИЕ РАБОТАЕТ, НО НЕ РАБОТАЕТ СЕКЦИЯ
 
-	descript = false;
+	//descript = false;
 }
 void syntax_analyzer::section() {
 	int i = 1; bool t = false;
@@ -530,7 +530,8 @@ void syntax_analyzer::section() {
 	if (t) {
 		name();
 		//now , after name calling, lex.s=="="
-	//	getc(lex);//next lexeme
+		getc(lex);//next lexeme //чтобы работало присваивание в expr это надо (by Yura)
+		assigment = true;
 		expression();
 	} else name();
 }

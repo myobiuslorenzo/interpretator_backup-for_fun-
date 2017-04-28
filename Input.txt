@@ -1,8 +1,22 @@
 int main(){
-int b=9;
-b<8;
+int b=9, c;
+cinout<<b;
 return 0;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
