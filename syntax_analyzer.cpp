@@ -154,14 +154,14 @@ void syntax_analyzer::expression() {
 	if (!descript)
 		watch(t, 1);
 	else {
-		t = lex;
+		watch(t, 1);
 		assigment = true;
 	}
 
-	if (t.s == "=" && lex.t == IDENT) {
+	if (t.s == "=" && lex.t == IDENT || descript) {
 		assigment = true;
 		exprIsNow = false;
-		name();
+		if(!descript) name();
 		Lexeme costylek = lex;
 		getc(lex);
 		//SEA.checkop(tmp, lex);
@@ -237,8 +237,14 @@ void syntax_analyzer::expression_1() {
 	if (t.t == PUNCT)
 		simple_expression();
 	else {
+		pol.push(precalc.expr);
+		precalc.expr.clear();
+
 		//	expression_1(); Это ,хоть и по грамматике, все-таки лишнее. С этим будет бесконечный цикл 
+		exprIsNow = false;
 		getc(lex);
+		exprIsNow = true;
+
 		ratio_operation();
 		//getc(lex);
 
@@ -510,7 +516,7 @@ void syntax_analyzer::description() {
 		SemA.push_name_in_set(lex);
 		section();
 	}if (lex.s != ";")throw(Error(";  expected...where is my ; ? :(", lex.line));
-	getc(lex);
+	getc(lex); //ЕСЛИ ЭТО ЗАКОММЕНТИТЬ, ТО ПРИСВАИВАНИЕ РАБОТАЕТ, НО НЕ РАБОТАЕТ СЕКЦИЯ
 
 	descript = false;
 }

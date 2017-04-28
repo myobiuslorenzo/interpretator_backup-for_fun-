@@ -99,11 +99,9 @@ void Poliz::push(vector<Lexeme> v) {
 void Poliz::push(string s, elemOfPoliz::typeElemOfPoliz t, typeIdent type) {
 	if (t == IDENT) {
 		Var v;
-		Var c = find(s);
-		if (c.error == "error") {
-			v.t = type;
-			var.insert(make_pair(s, v));
-		}
+
+		v.t = type;
+		var.insert(make_pair(s, v));
 	}
 	pol.push_back(elemOfPoliz(s,t));
 
@@ -187,7 +185,8 @@ bool Poliz::find_var(string s, Var& v) {
 	}
 	return false;
 }
-/*string Poliz::get_expr(vector<Lexeme>& expr) {
+
+string Poliz::get_expr(vector<Lexeme>& expr) {
 	string s,res="";
 	for (int i = 0; i < expr.size(); ++i) {
 		Var V;
@@ -200,7 +199,8 @@ bool Poliz::find_var(string s, Var& v) {
 		}
 	}
 	return res;
-}*/
+}
+
 bool Poliz::logic(string s) {
 	return 0;
 }
