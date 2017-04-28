@@ -188,6 +188,11 @@ void syntax_analyzer::expression() {
 		assigment = false;
 	}
 
+	if (ratioOper != "NONE") {
+		pol.push(ratioOper);
+		ratioOper="NONE";
+	}
+
 	//	getc(lex);
 }
 
@@ -263,6 +268,7 @@ void syntax_analyzer::expression_1ForWhile() {
 
 void syntax_analyzer::ratio_operation() {
 	if (lex.s == "!=" || lex.s == "<" || lex.s == ">" || lex.s == "==" || lex.s == "<=" || lex.s == ">=") {
+		ratioOper = lex.s;
 		getc(lex);
 	} else {
 		Lexeme t;
@@ -272,7 +278,7 @@ void syntax_analyzer::ratio_operation() {
 			getc(lex);
 			getc(lex);
 
-			//pol.push(string("!=");
+			ratioOper="!=";
 			return;
 		}
 

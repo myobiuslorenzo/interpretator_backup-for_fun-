@@ -1,6 +1,6 @@
 int main(){
 int b=9;
-cinout<<b;
+b<8;
 return 0;
 }
 
