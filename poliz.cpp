@@ -187,7 +187,7 @@ bool Poliz::find_var(string s, Var& v) {
 	}
 	return false;
 }
-string Poliz::get_expr(vector<Lexeme>& expr) {
+/*string Poliz::get_expr(vector<Lexeme>& expr) {
 	string s,res="";
 	for (int i = 0; i < expr.size(); ++i) {
 		Var V;
@@ -200,6 +200,9 @@ string Poliz::get_expr(vector<Lexeme>& expr) {
 		}
 	}
 	return res;
+}*/
+bool Poliz::logic(string s) {
+	return 0;
 }
 void Poliz::scan() {
 	//vector<string> rightradical;//калькулятор разберется сам с правоассоциативными операциями ?
@@ -219,16 +222,19 @@ void Poliz::scan() {
 		switch (pol[i].t) {
 		case EXPR:
 		{
+		//	cout << "1";
 			ex = get_expr(pol[i].expr);
 			ld elem;
+			//cout << ex << endl;
 			elem = precalc.calculate(ex);
+		//	cout << elem << endl;
 			Ident TM(elem);
 			elemOfPoliz W(TM);
 			stack.push(W);
 		}
 			break;
 		case IDENT:
-			//cout << pol[i].i.name;
+			//cout << "2";
 			stack.push(pol[i]);
 			break;
 		case CONST:
@@ -382,7 +388,7 @@ void Poliz::scan() {
 		}
 		break;
 		case TRANS:  //безусловный переход. Он тоже нужен, и без него никак.
-			//cout << "6";
+		//	cout << "6";
 			auto a = stack.pop();
 			stack.clear();
 			i = a.i.i-1;//иначе оказаться можем на ячейку дальше, чем надо

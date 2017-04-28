@@ -159,6 +159,8 @@ void syntax_analyzer::expression() {
 	}
 
 	if (t.s == "=" && lex.t == IDENT) {
+		assigment = true;
+		exprIsNow = false;
 		name();
 		Lexeme costylek = lex;
 		getc(lex);

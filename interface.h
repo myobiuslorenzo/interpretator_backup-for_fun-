@@ -241,6 +241,7 @@ struct Poliz { //если тебя что-то не устраивает в ко
 	void assign(elemOfPoliz& p, Var& q);
 	bool find(string s, vector<string>& q);
 	bool find_var(string s, Var& v);
+	bool logic(string s);
 	string get_expr(vector<Lexeme>& expr);
 	
 };
