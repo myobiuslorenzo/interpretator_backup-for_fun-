@@ -92,6 +92,15 @@ void Poliz::push(bool d) {
 void Poliz::push(string d) {
 	pol.push_back(elemOfPoliz(d));
 }
+
+void Poliz::push(elemOfPoliz::typeElemOfPoliz t) {
+	pol.push_back(elemOfPoliz(t));
+}
+
+void Poliz::push(vector<Lexeme> v) {
+	pol.push_back(elemOfPoliz(v));
+}
+
 string Poliz::get(Var& v) {
 	stringstream ss;
 	switch (v.t) {
@@ -111,11 +120,15 @@ string Poliz::get(Var& v) {
 		ss << v.b;
 		break;
 	}
+	string s;
+	 ss >> s;
+	return s;
 }
 
 template <class T>
 void push_to_vector_from_file(vector<T>& Fnaf, string naf) {
-	ifstream one.open(naf);
+	ifstream one;
+	one.open(naf);
 	while (!one.eof()) {
 		string w;
 		one >> w;
@@ -142,6 +155,29 @@ void Poliz::assign(elemOfPoliz& p, Var& q) {
 		if (t.first == p.i.name)t.second = q;
 	}
 }
+bool Poliz::find_var(string s, Var& v) {
+	for (auto t : var) {
+		if (t.first == s) {
+			v = t.second;
+			return true;
+		}
+	}
+	return false;
+}
+string Poliz::get_expr(vector<Lexeme>& expr) {
+	string s,res="";
+	for (int i = 0; i < expr.size(); ++i) {
+		Var V;
+		if (expr[i].t==IDENT && find_var(expr[i].s, V)) {
+			s = get(V);
+			res += s;
+		}
+		else {
+			res += expr[i].s;
+		}
+	}
+	return res;
+}
 void Poliz::scan() {
 	//vector<string> rightradical;//калькул€тор разберетс€ сам с правоассоциативными операци€ми ?
 	vector<string> unary_oper;
@@ -149,9 +185,20 @@ void Poliz::scan() {
 	push_to_vector_from_file(unary_oper, "unary_oper.txt");
 	Precalculator precalc;
 	size_t i = 0;
+	string ex;
 	Stack<elemOfPoliz> stack;// imagination
 	while (i < pol.size()) {
 		switch (pol[i].t) {
+		case EXPR:
+		{
+			ex = get_expr(pol[i].expr);
+			ld elem;
+			elem = precalc.calculate(ex);
+			Ident TM(elem);
+			elemOfPoliz W(TM);
+			stack.push(W);
+		}
+			break;
 		case IDENT:
 			stack.push(pol[i]);
 			break;
@@ -233,6 +280,7 @@ void Poliz::scan() {
 					auto p = stack.pop();
 					auto x = find(p.i.name);
 					string r1 = get(x);
+					ld elem;
 					elem = precalc.calculate(pol[i].oper + r1);
 					Ident TM(elem);
 					elemOfPoliz W(TM);
@@ -241,7 +289,7 @@ void Poliz::scan() {
 				}
 			}
 			break;
-		case RETRANS: //условный переход
+		case TRANSONLIE: //условный переход
     	 {//почему оно ругаетс€, если скобки "{}" убрать?
 			elemOfPoliz q = stack.pop();
 			elemOfPoliz w = stack.pop();
