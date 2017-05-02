@@ -99,6 +99,11 @@ void Poliz::push(vector<Lexeme> v) {
 void Poliz::push(string s, elemOfPoliz::typeElemOfPoliz t, typeIdent type) {
 	if (t == IDENT) {
 		Var v;
+	//	Var c = find(s);
+	//	if (c.error == "error") {
+			v.t = type;
+			var.insert(make_pair(s, v));
+		//}
 
 		v.t = type;
 		var.insert(make_pair(s, v));
@@ -159,27 +164,32 @@ void Poliz::assign(elemOfPoliz& p, elemOfPoliz& q) {
 		if (t.first == p.i.name) {
 			//if (v.error != "error")t.second = v;
 			//else {
-				Var gg;
+				//Var gg;
 				t.second.ldd = q.i.ldd;
 				t.second.i = q.i.i;
 				t.second.b = q.i.b;
 				t.second.c = q.i.c;
 				t.second.d = q.i.d;
 
-				v = find(p.i.name);
+			//	v = find(p.i.name);
 		//	}
 		}
 	}
 }
 void Poliz::assign(elemOfPoliz& p, Var& q) {
-	for (auto t : var) {
-		if (t.first == p.i.name)t.second = q;
+	for (auto& t : var) {
+		if (t.first == p.i.name) {
+			t.second = q;
+			t.second.ldd = q.ldd;
+		}
 	}
 }
 bool Poliz::find_var(string s, Var& v) {
-	for (auto t : var) {
+	for (auto& t : var) {
 		if (t.first == s) {
-			v = t.second;
+			v.t=t.second.t;
+			v.ldd = t.second.ldd;
+			v.i = t.second.i;
 			return true;
 		}
 	}
@@ -190,7 +200,9 @@ string Poliz::get_expr(vector<Lexeme>& expr) {
 	string s,res="";
 	for (int i = 0; i < expr.size(); ++i) {
 		Var V;
-		if (expr[i].t==IDENT && find_var(expr[i].s, V)) {
+		bool z = find_var(expr[i].s, V);
+		if (z) {
+			V.t = LONG_DOUBLE;
 			s = get(V);
 			res += s;
 		}
@@ -222,19 +234,16 @@ void Poliz::scan() {
 		switch (pol[i].t) {
 		case EXPR:
 		{
-		//	cout << "1";
 			ex = get_expr(pol[i].expr);
 			ld elem;
-			//cout << ex << endl;
 			elem = precalc.calculate(ex);
-		//	cout << elem << endl;
 			Ident TM(elem);
 			elemOfPoliz W(TM);
 			stack.push(W);
 		}
 			break;
 		case IDENT:
-			//cout << "2";
+			//cout << pol[i].i.name;
 			stack.push(pol[i]);
 			break;
 		case CONST:
@@ -244,7 +253,7 @@ void Poliz::scan() {
 		{
 			if (pol[i].oper == "<<") {
 				elemOfPoliz u = stack.pop();
-				Var x = find(u.i.name);
+ 				Var x = find(u.i.name);
 				if (x.error == "error") {
 					switch (u.i.t) {
 					case INT:
@@ -318,6 +327,11 @@ void Poliz::scan() {
 				case STRING:
 					cin >> pol[i].i.name;
 					break;
+				default: {
+					cin >> z.ldd;
+					assign(u, z);
+					break;
+				}
 				}
 			} else if (pol[i].oper == "=") {
 				elemOfPoliz u = stack.pop();
@@ -388,7 +402,7 @@ void Poliz::scan() {
 		}
 		break;
 		case TRANS:  //безусловный переход. ќн тоже нужен, и без него никак.
-		//	cout << "6";
+			//cout << "6";
 			auto a = stack.pop();
 			stack.clear();
 			i = a.i.i-1;//иначе оказатьс€ можем на €чейку дальше, чем надо

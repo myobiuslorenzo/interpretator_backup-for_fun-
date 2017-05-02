@@ -12,6 +12,7 @@ struct Lexeme{
 		coord = _coord;
 		line = _line;
     }
+	Lexeme(typeLex tl, string str) : t(tl), s(str) {};
 	Lexeme(typeLex tl, char str, int _coord, int _line) {
 		t = tl;
 		s.push_back(str);

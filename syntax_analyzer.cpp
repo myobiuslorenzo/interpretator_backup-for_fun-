@@ -112,6 +112,7 @@ void syntax_analyzer::name() { //вот тут я не уверен, что вс
 	if (!exprIsNow)
 		pol.push(lex.s, elemOfPoliz::typeElemOfPoliz::IDENT, TYPE);
 
+	//exprIsNow = false; //FLAG //с комментом синаут работает
 	getc(lex);
 }
 void syntax_analyzer::Operator() {
@@ -177,7 +178,7 @@ void syntax_analyzer::expression() {
 
 	//pol.push(Ident((double)precalc.calculate())); //очистка сделана в прекалке
 
-	if (!precalc.expr.empty()) precalc.expr.pop_back();
+	if (!precalc.expr.empty() && precalc.expr.back().s == ";") precalc.expr.pop_back();
 
 	if (pushExprInPol) {
 		pol.push(precalc.expr);
@@ -370,6 +371,7 @@ void syntax_analyzer::atom() { //poliz working
 			special_atom();
 	}
 
+	//exprIsNow = false; //FLAG с комментом синаут работает
 }
 void syntax_analyzer::special_atom() { //ФЛАГ всё норм с ! ??? //poliz working
 									   //должно быть норм
@@ -423,7 +425,17 @@ void syntax_analyzer::increment() {
 	if (lex.s != "--" && lex.s != "++")
 		throw(Error("increment or decrement expected", lex.line));
 
-	//pol.push(lex.s);
+	string var = precalc.expr.back().s;
+	pol.push(elemOfPoliz(Ident(var)));
+	if(lex.s=="++")
+		precalc.expr.push_back(Lexeme(OPER, "+"));
+	else
+		precalc.expr.push_back(Lexeme(OPER, "-"));
+
+	precalc.expr.push_back(Lexeme(CONST, "1"));
+	precalc.expr.push_back(Lexeme(CONST, "thrash")); //костыль, экспрешион убирает последний элемент -> убирет thrash 
+
+	assigment = true;
 	getc(lex);
 }
 void syntax_analyzer::sign() {
