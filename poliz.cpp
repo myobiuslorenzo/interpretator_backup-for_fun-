@@ -187,10 +187,12 @@ void Poliz::scan() {
 	size_t i = 0;
 	string ex;
 	Stack<elemOfPoliz> stack;// imagination
+	//cout << "trololo";
 	while (i < pol.size()) {
 		switch (pol[i].t) {
 		case EXPR:
 		{
+		//	cout << "1";
 			ex = get_expr(pol[i].expr);
 			ld elem;
 			elem = precalc.calculate(ex);
@@ -200,12 +202,18 @@ void Poliz::scan() {
 		}
 			break;
 		case IDENT:
+			//cout << "2";
 			stack.push(pol[i]);
 			break;
 		case CONST:
+			//cout << "3";
 			stack.push(pol[i]);
 			break;
 		case OPER:
+		{
+			cout << pol[i].oper;//почему константы имеют тип операции???!
+			cout << "why constants have type \"operation\" ?\n";
+			/*cout << "4";
 			if (!find(pol[i].oper, unary_oper)) {
 				auto p = stack.pop();
 				auto q = stack.pop();
@@ -215,7 +223,7 @@ void Poliz::scan() {
 				string r1= get(x),r2=get(y);
 				ld elem;
 
-			    elem = precalc.calculate(r1 + pol[i].oper + r2);
+				elem = precalc.calculate(r1 + pol[i].oper + r2);
 
 				if (pol[i].oper == "=") {
 					assign(p, q);
@@ -225,71 +233,65 @@ void Poliz::scan() {
 				stack.push(W);
 			}
 			else {
-				if (pol[i].oper == "<<") {
-					Var x = find(pol[i].i.name);
-					switch (pol[i].i.t) {
-					case INT:
-						cout << x.i;
-						break;
-					case DOUBLE:
-						cout << x.d;
-						break;
-					case LONG_DOUBLE:
-						cout << x.ldd;
-						break;
-					case BOOL:
-						cout << x.b;
-						break;
-					case CHAR:
-						cout << x.c;
-						break;
-					case STRING:
-						cout << pol[i].i.name;
-						break;
-					}
-				}
-				else if (pol[i].oper == ">>") {
-					Var z;
-					switch (pol[i].i.t) {
-					case INT:
-						cin >> z.i;
-						assign(pol[i], z);
-						break;
-					case DOUBLE:
-						cin >> z.d;
-						assign(pol[i], z);
-						break;
-					case LONG_DOUBLE:
-						cin >> z.ldd;
-						assign(pol[i], z);
-						break;
-					case BOOL:
-						cin >> z.b;
-						assign(pol[i], z);
-						break;
-					case CHAR:
-						cin >> z.c;
-						assign(pol[i], z);
-						break;
-					case STRING:
-						cin >> pol[i].i.name;
-						break;
-					}
-				}
-				else {
-					auto p = stack.pop();
-					auto x = find(p.i.name);
-					string r1 = get(x);
-					ld elem;
-					elem = precalc.calculate(pol[i].oper + r1);
-					Ident TM(elem);
-					elemOfPoliz W(TM);
-					stack.push(W);
-					//reverse smth value of var in TID
+			*/
+			if (pol[i].oper == "<<") {
+				elemOfPoliz u = stack.pop();
+				//Var x = find(pol[i].i.name);
+				Var x = find(u.oper);
+				switch (u.i.t) {
+				case INT:
+					cout << x.i;
+					break;
+				case DOUBLE:
+					cout << x.d;
+					break;
+				case LONG_DOUBLE:
+					cout << x.ldd;
+					break;
+				case BOOL:
+					cout << x.b;
+					break;
+				case CHAR:
+					cout << x.c;
+					break;
+				case STRING:
+					cout << pol[i].i.name;
+					break;
 				}
 			}
+			else if (pol[i].oper == ">>") {
+				elemOfPoliz u = stack.pop();
+				Var z;
+				switch (u.i.t) {
+				case INT:
+					cin >> z.i;
+					assign(pol[i], z);
+					break;
+				case DOUBLE:
+					cin >> z.d;
+					assign(pol[i], z);
+					break;
+				case LONG_DOUBLE:
+					cin >> z.ldd;
+					assign(pol[i], z);
+					break;
+				case BOOL:
+					cin >> z.b;
+					assign(pol[i], z);
+					break;
+				case CHAR:
+					cin >> z.c;
+					assign(pol[i], z);
+					break;
+				case STRING:
+					cin >> pol[i].i.name;
+					break;
+				}
+			}
+		}
 			break;
 		case TRANSONLIE: //условный переход
+		//	cout << "5";
     	 {//почему оно ругаетс€, если скобки "{}" убрать?
 			elemOfPoliz q = stack.pop();
 			elemOfPoliz w = stack.pop();
@@ -300,11 +302,13 @@ void Poliz::scan() {
 		}
 		break;
 		case TRANS:  //безусловный переход. ќн тоже нужен, и без него никак.
+		//	cout << "6";
 			auto a = stack.pop();
 			stack.clear();
 			i = a.i.i-1;//иначе оказатьс€ можем на €чейку дальше, чем надо
 			break;
 		}
+		//cout << "end\n";
 		i++;
 	}
 }

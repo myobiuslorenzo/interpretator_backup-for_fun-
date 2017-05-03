@@ -95,7 +95,7 @@ struct Stack {//stack of types, operators and operands
 
 
 struct elemOfPoliz {
-	enum typeElemOfPoliz { IDENT, CONST, OPER, TRANS, RETRANS, EXPR };//если писать это в структуре, он за тип берет typelex или ещё что-то....
+	enum typeElemOfPoliz { IDENT, CONST, OPER, TRANS, RETRANS, EXPR};//если писать это в структуре, он за тип берет typelex или ещё что-то....
 	typeElemOfPoliz t;
 	vector<Lexeme> expr;
 	Ident i;
@@ -212,6 +212,9 @@ struct Poliz {
 	void assign(elemOfPoliz& p, elemOfPoliz& q);
 	void assign(elemOfPoliz& p, Var& q);
 	bool find(string s, vector<string>& q);
+	bool find_var(string s, Var& v);
+	string get_expr(vector<Lexeme>& expr);
+	
 };
 
 
