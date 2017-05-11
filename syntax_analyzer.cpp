@@ -222,7 +222,7 @@ void syntax_analyzer::expression() {
 		expression_1();
 	}
 
-	if (precalc.expr.empty()) pushExprInPol = false;
+	if (precalc.expr.empty() || operOfFor) pushExprInPol = false;
 	else
 		pushExprInPol = true;
 
@@ -288,16 +288,19 @@ void syntax_analyzer::expression_1() {
 	if (t.t == PUNCT)
 		simple_expression();
 	else {
+		addToExpr();
 		pol.push(precalc.expr);
 		precalc.expr.clear();
 
 		//	expression_1(); Это ,хоть и по грамматике, все-таки лишнее. С этим будет бесконечный цикл 
 		exprIsNow = false;
 		getc(lex);
-		exprIsNow = true;
+		
 
 		ratio_operation();
 		//getc(lex);
+
+		exprIsNow = true;
 
 		expression_1();
 	}
@@ -486,7 +489,7 @@ void syntax_analyzer::increment() {
 		precalc.expr.push_back(Lexeme(OPER, "-"));
 
 	precalc.expr.push_back(Lexeme(CONST, "1"));
-	precalc.expr.push_back(Lexeme(CONST, "thrash")); //костыль, экспрешион убирает последний элемент -> убирет thrash 
+	precalc.expr.push_back(Lexeme(CONST, ";")); //костыль, экспрешион убирает последний элемент -> убирет ; 
 
 	assigment = true;
 	getc(lex);
@@ -693,6 +696,7 @@ void syntax_analyzer::for_operator() {
 		cfor_operator(indexOfAdressOfExitOfFor);
 	}
 	if (t) else_branch(indexOfAdressOfExitOfFor);
+	else pol.pol[indexOfAdressOfExitOfFor] = (int) pol.pol.size();
 
 	whileOrForBody = false;
 }
@@ -712,7 +716,9 @@ void syntax_analyzer::cfor_operator(int& indexOfAdressOfExitOfFor) { //dangeous 
 
 		int indexOfStartOfFor = (int) pol.pol.size();
 
-		pol.push(pol.pol[(int) pol.pol.size() - 3]); //добавляю условие повторно для выхода, а не для элза
+		pol.push(pol.pol[(int) pol.pol.size() - 5]); //добавляю условие повторно для выхода, а не для элза
+		pol.push(pol.pol[(int) pol.pol.size() - 5]); //добавляю условие повторно для выхода, а не для элза
+		pol.push(pol.pol[(int) pol.pol.size() - 5]); //добавляю условие повторно для выхода, а не для элза
 
 		indexOfAdressOfExitOfFor = (int) pol.pol.size();
 		pol.push(-1);
@@ -724,17 +730,25 @@ void syntax_analyzer::cfor_operator(int& indexOfAdressOfExitOfFor) { //dangeous 
 
 		pushExprInPol = false;
 		expression();
-		vector<Lexeme> operOfFor = precalc.expr;
-		precalc.expr.clear();
+		stack<elemOfPoliz> operOfFor;
+
+		for (size_t i = 0; i < 3; i++) {
+			operOfFor.push(pol.pol.back());
+			pol.pol.pop_back();
+		}
+		
 		pushExprInPol = true;
 
 		if (lex.s != ")")throw(Error(") expected", lex.line));
 		getc(lex);
 		Operator();
 
-		pol.push(operOfFor);
-		pol.push(indexOfStartOfFor);
+		for (size_t i = 0; i < 3; i++) {
+			pol.pol.push_back(operOfFor.top());
+			operOfFor.pop();
+		}
 
+		pol.push(indexOfStartOfFor);
 		elemOfPoliz ee(elemOfPoliz::TRANS);
 		pol.push(ee);
 

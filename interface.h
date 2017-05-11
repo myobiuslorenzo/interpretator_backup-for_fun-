@@ -265,7 +265,7 @@ struct syntax_analyzer {
 	string ratioOper = "NONE";
 
 	bool exprIsNow = false, assigment = false,
-		pushExprInPol = true, descript = false, whileOrForBody = false;
+		pushExprInPol = true, descript = false, whileOrForBody = false, operOfFor = false;
 	bool cinoutNow = false;
 
 		//pushExprInPol - true = пихает выражение в полиз при завершении expression()
