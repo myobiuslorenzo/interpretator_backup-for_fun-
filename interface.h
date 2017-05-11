@@ -212,8 +212,8 @@ struct semantic_analyzer {
 };
 
 struct Poliz { //если тебя что-то не устраивает в конструкторе -> смотри в конструкторы elemOfPoliz
-	enum typeElemOfPoliz { IDENT, CONST, OPER, TRANS, TRANSONLIE, EXPR,  };//если писать это в структуре, он за тип берет typelex или ещё что-то.... 
-																		   //TRANSONLIE - ПЕРЕХОД ПО ЛЖИ
+	enum typeElemOfPoliz { IDENT, CONST, OPER, TRANS, RETRANS, EXPR,  };//если писать это в структуре, он за тип берет typelex или ещё что-то.... 
+																		   //RETRANS - ПЕРЕХОД ПО ЛЖИ
 
 	map<string, Var> var;
 	vector<elemOfPoliz>pol;
@@ -264,8 +264,10 @@ struct syntax_analyzer {
 	Precalculator precalc; 
 	string ratioOper = "NONE";
 
-	bool exprIsNow = false, assigment =false,
-		pushExprInPol=true, descript =false, whileOrForBody=false; 
+	bool exprIsNow = false, assigment = false,
+		pushExprInPol = true, descript = false, whileOrForBody = false;
+	bool cinoutNow = false;
+
 		//pushExprInPol - true = пихает выражение в полиз при завершении expression()
 		//exprIsNow - в getc() будет пихать автоматически каждый символ в выражение при считывании
 
@@ -288,6 +290,8 @@ struct syntax_analyzer {
 	void watch(Lexeme& t,int shift);
 	void program();
 	void name();
+	void nameForSect();
+	void nameForWhile();
 	void Operator();
 	void expression_statement();
 	void expression();

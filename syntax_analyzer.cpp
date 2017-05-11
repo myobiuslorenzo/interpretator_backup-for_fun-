@@ -109,12 +109,55 @@ void syntax_analyzer::name() { //вот тут я не уверен, что вс
 		throw(Error(err, lex.line));
 	}
 
-	if (!exprIsNow)
-		pol.push(lex.s, elemOfPoliz::typeElemOfPoliz::IDENT, TYPE);
+	if (!cinoutNow) exprIsNow = false; //FLAG //с комментом синаут работает
 
-	//exprIsNow = false; //FLAG //с комментом синаут работает
+	if (descript)
+		pol.push(lex.s, elemOfPoliz::typeElemOfPoliz::IDENT, TYPE);
+	else
+		if (!exprIsNow)
+			addToExpr();
+	
 	getc(lex);
 }
+
+void syntax_analyzer::nameForWhile() { //вот тут я не уверен, что всё так, ибо не так как по грамматике 
+	SemA.find_name(lex); //poliz working here
+
+	if (!isLet(lex.s[0])) {
+		string err("The name can't begin with '");
+		err += lex.s[0] + "'!";
+		throw(Error(err, lex.line));
+	}
+
+	if (!cinoutNow) exprIsNow = false; //FLAG //с комментом синаут работает
+
+	if (descript)
+		pol.push(lex.s, elemOfPoliz::typeElemOfPoliz::IDENT, TYPE);
+	else
+		if (!exprIsNow)
+			addToExpr();
+
+	getc(lex);
+}
+
+void syntax_analyzer::nameForSect() { //вот тут я не уверен, что всё так, ибо не так как по грамматике 
+	SemA.find_name(lex); //poliz working here
+
+	if (!isLet(lex.s[0])) {
+		string err("The name can't begin with '");
+		err += lex.s[0] + "'!";
+		throw(Error(err, lex.line));
+	}
+
+	if (!cinoutNow) exprIsNow = false; //FLAG //с комментом синаут работает
+
+	if (descript)
+		pol.push(lex.s, elemOfPoliz::typeElemOfPoliz::IDENT, TYPE);
+	else
+		if (!exprIsNow)
+			addToExpr();
+}
+
 void syntax_analyzer::Operator() {
 	Lexeme t;
 
@@ -134,7 +177,9 @@ void syntax_analyzer::Operator() {
 			else
 				if (lex.s == "int" || lex.s == "bool" || lex.s == "double" || lex.s == "char") {
 					buff_type = lex.s;
+					//descript = true;
 					description();
+					//descript = false;
 				} else
 					expression_statement();
 
@@ -163,24 +208,29 @@ void syntax_analyzer::expression() {
 		assigment = true;
 		exprIsNow = false;
 		if(!descript) name();
-		Lexeme costylek = lex;
+		//Lexeme costylek = lex;
 		getc(lex);
 		//SEA.checkop(tmp, lex);
+		descript = false;
 		expression();
-		elemOfPoliz e(costylek.s);
-		pol.push(e);
-		pushExprInPol = false;
+		//elemOfPoliz e(costylek.s);
+		//pol.push(e);
+
 	} else {
 		exprIsNow = true;
-		addToExpr();
+		//if(!cinoutNow) addToExpr();
 		expression_1();
 	}
+
+	if (precalc.expr.empty()) pushExprInPol = false;
+	else
+		pushExprInPol = true;
 
 	//pol.push(Ident((double)precalc.calculate())); //очистка сделана в прекалке
 
 	if (!precalc.expr.empty() && precalc.expr.back().s == ";") precalc.expr.pop_back();
 
-	if (pushExprInPol) {
+	if (pushExprInPol|| descript) {
 		pol.push(precalc.expr);
 		precalc.expr.clear();
 	}
@@ -223,7 +273,7 @@ void syntax_analyzer::expressionForWhile() { //poliz working
 		precalc.expr.clear();
 	}
 
-
+	pol.pol.push_back(ratioOper);
 }
 void syntax_analyzer::expression_1() {
 
@@ -263,18 +313,21 @@ void syntax_analyzer::expression_1ForWhile() {
 	}
 
 	//if (t.s=="+"||t.s=="-") {
-	if (t.t == PUNCT)
+	if (t.t == PUNCT) {
 		simple_expression();
-	else {
+	}  else {
 		//	expression_1(); Это ,хоть и по грамматике, все-таки лишнее. С этим будет бесконечный цикл
-		precalc.expr.push_back(lex); //КОСТЫЛЬ
+		//precalc.expr.push_back(lex); //КОСТЫЛЬ //теперь почему-то без него легче
 		simple_expression();
+		pol.push(precalc.expr);
+		precalc.expr.clear();
+
 		//getc(lex);
 		ratio_operation();
 		//getc(lex);
 
 		simple_expression();
-		precalc.expr.pop_back();
+		if(!precalc.expr.empty()&&precalc.expr.back().s==")") precalc.expr.pop_back();
 	}
 }
 
@@ -449,7 +502,8 @@ void syntax_analyzer::constant() {
 	if (lex.t != CONST)
 		throw(Error("constant expected", lex.line));
 
-	//pol.push(lex.s);
+	addToExpr(); //так вайл работает
+	exprIsNow = false;
 	getc(lex);
 }
 void syntax_analyzer::bool_value() {
@@ -482,6 +536,9 @@ void syntax_analyzer::list_of_elements() { //poliz working
 	}
 }
 void syntax_analyzer::element() {//poliz working here
+	pushExprInPol = true;
+	cinoutNow = true;
+
 	if (lex.s == "<<") {
 		getc(lex);
 		if (lex.strbool == true) {
@@ -501,6 +558,8 @@ void syntax_analyzer::element() {//poliz working here
 
 		pol.push(string(">>"));
 	} else throw(Error("<< or >> expected", lex.line));
+
+	cinoutNow = false;
 }
 void syntax_analyzer::composite_operator() { //poliz working
 	if (lex.s != "{")throw(Error("{ expected", lex.line));
@@ -517,7 +576,7 @@ void syntax_analyzer::composite_operator() { //poliz working
 		throw(Error("} expected", lex.line));
 }
 void syntax_analyzer::description() {
-	//descript = true;
+	descript = true;
 	type();
 
 	SemA.push_name_in_set(lex);
@@ -530,7 +589,7 @@ void syntax_analyzer::description() {
 	}if (lex.s != ";")throw(Error(";  expected...where is my ; ? :(", lex.line));
 	getc(lex); //ЕСЛИ ЭТО ЗАКОММЕНТИТЬ, ТО ПРИСВАИВАНИЕ РАБОТАЕТ, НО НЕ РАБОТАЕТ СЕКЦИЯ
 
-	//descript = false;
+	descript = false;
 }
 void syntax_analyzer::section() {
 	int i = 1; bool t = false;
@@ -540,7 +599,7 @@ void syntax_analyzer::section() {
 		i++;
 	}
 	if (t) {
-		name();
+		nameForSect();
 		//now , after name calling, lex.s=="="
 		getc(lex);//next lexeme //чтобы работало присваивание в expr это надо (by Yura)
 		assigment = true;
@@ -566,10 +625,11 @@ void syntax_analyzer::dowhile_operator() { //не смущайся, все но�
 	pushExprInPol = false;
 	whileOrForBody = true;
 
+	int indexOfBodyWhile = (int) pol.pol.size();
 	Operator();
 
 	//vector<Lexeme> bodyOfWhile = precalc.expr;
-	pol.push(precalc.expr);
+	//pol.push(precalc.expr);
 
 	precalc.expr.clear();
 	pushExprInPol = true;
@@ -586,7 +646,7 @@ void syntax_analyzer::dowhile_operator() { //не смущайся, все но�
 	elemOfPoliz e(elemOfPoliz::RETRANS);
 	pol.push(e);
 
-	pol.push((int) pol.pol.size() - 4); //check this horror!
+	pol.push(indexOfBodyWhile); //check this horror!
 
 	elemOfPoliz ee(elemOfPoliz::TRANS);
 	pol.push(ee);

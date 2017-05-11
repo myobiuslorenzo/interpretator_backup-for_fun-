@@ -338,8 +338,8 @@ void Poliz::scan() {
 				elemOfPoliz w = stack.pop();
 				assign(w, u);
 			}else{
-				elemOfPoliz u = stack.pop();
 				elemOfPoliz w = stack.pop();
+				elemOfPoliz u = stack.pop();
 				bool t;
 				switch (u.i.t) {
 					case INT:
@@ -386,18 +386,20 @@ void Poliz::scan() {
 						cout << "\n?????!\n";
 						break;
 				}
-
+				Ident TM(t);
+				elemOfPoliz W(TM);
+				stack.push(W);
 			}
 		}
 			break;
-		case TRANSONLIE: //условный переход
+		case RETRANS: //условный переход
 		//	cout << "5";
     	 {//почему оно ругается, если скобки "{}" убрать?
 			elemOfPoliz q = stack.pop();
 			elemOfPoliz w = stack.pop();
-			if (q.i.b != true) {
+			if (w.i.b != true) {
 				stack.clear();
-				i = w.i.i-1;//ссылка на ячейку полиза(тоже инт же, не стал извращаться)
+				i = q.i.i-1;//ссылка на ячейку полиза(тоже инт же, не стал извращаться)
 			}
 		}
 		break;
