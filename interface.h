@@ -265,7 +265,8 @@ struct syntax_analyzer {
 	string ratioOper = "NONE";
 
 	bool exprIsNow = false, assigment = false,
-		pushExprInPol = true, descript = false, whileOrForBody = false, operOfFor = false;
+		pushExprInPol = true, descript = false, whileOrForBody = false, operOfFor = false,
+		simpleExpr = false;
 	bool cinoutNow = false;
 
 		//pushExprInPol - true = пихает выражение в полиз при завершении expression()
@@ -292,11 +293,14 @@ struct syntax_analyzer {
 	void name();
 	void nameForSect();
 	void nameForWhile();
+	void nameIn();
+	void nameForExpr();
 	void Operator();
 	void expression_statement();
 	void expression();
 	void expressionForWhile();
 	void expression_1ForWhile();
+	void simple_expressionWhile();
 	void  expression_1();
 	void ratio_operation();
 	void simple_expression();

@@ -7,7 +7,7 @@ int main(){
 		LA.Analyze();
 		syntax_analyzer SA("Output.txt",LA.BOL.finalmasoflex);
 
-		cout << SA.cinoutNow; //ПРОБЛЕМА С NAME. ДЛЯ СЕКЦИИ И ВАЙЛА НУЖНЫ РАЗНЫЕ NAME
+		//cout << SA.cinoutNow;
 		SA.program();
 		SA.pol.scan();
 

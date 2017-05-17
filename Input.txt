@@ -1,13 +1,121 @@
 int main(){
-int a=1;
-int b=2;
+int a;
+int x;
+cinout>>a;
+cinout>>x;
+int ans=0;
 
-for(int i=0; i<0; i++){
-cinout<<4;
-} else {cinout << 9;}
+bool munus=false;
+for(int i=1; i<=a; i++){
+	int fact=1;	
+
+	for(int j=1; j<=i*2; j++){
+		fact=fact*j;}
+
+	int mul=1;
+	for(int j=1; j<=a; j++){
+		mul=mul*x;}
+
+	for(int j=0; minus; j++){
+		ans=ans-mul/fact;
+		minus=false;
+	} else {
+		ans=ans+mul/fact;
+		minus=true;
+	}
+}
+
 
 return 0;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

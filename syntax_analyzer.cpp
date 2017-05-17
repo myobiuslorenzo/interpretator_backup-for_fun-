@@ -109,16 +109,53 @@ void syntax_analyzer::name() { //вот тут я не уверен, что вс
 		throw(Error(err, lex.line));
 	}
 
-	if (!cinoutNow) exprIsNow = false; //FLAG //с комментом синаут работает
+	//if (simpleExpr) addToExpr();
+	exprIsNow = false; //FLAG //с комментом синаут работает
 
 	if (descript)
 		pol.push(lex.s, elemOfPoliz::typeElemOfPoliz::IDENT, TYPE);
 	else
-		if (!exprIsNow)
+		if (!cinoutNow&&!assigment)
 			addToExpr();
+
+	if (assigment) pol.push(lex.s, elemOfPoliz::typeElemOfPoliz::IDENT);
 	
+
 	getc(lex);
 }
+
+void syntax_analyzer::nameIn() { //вот тут я не уверен, что всё так, ибо не так как по грамматике 
+	SemA.find_name(lex); //poliz working here
+
+	if (!isLet(lex.s[0])) {
+		string err("The name can't begin with '");
+		err += lex.s[0] + "'!";
+		throw(Error(err, lex.line));
+	}
+
+	//if (simpleExpr) addToExpr();
+	exprIsNow = false; //FLAG //с комментом синаут работает
+
+	pol.push(lex.s, elemOfPoliz::typeElemOfPoliz::IDENT, TYPE);
+
+
+	getc(lex);
+}
+
+void syntax_analyzer::nameForExpr() { //вот тут я не уверен, что всё так, ибо не так как по грамматике 
+	SemA.find_name(lex); //poliz working here
+
+	if (precalc.expr.empty()) addToExpr();
+	if (!isLet(lex.s[0])) {
+		string err("The name can't begin with '");
+		err += lex.s[0] + "'!";
+		throw(Error(err, lex.line));
+	}
+
+	getc(lex);
+}
+
+
 
 void syntax_analyzer::nameForWhile() { //вот тут я не уверен, что всё так, ибо не так как по грамматике 
 	SemA.find_name(lex); //poliz working here
@@ -212,7 +249,11 @@ void syntax_analyzer::expression() {
 		getc(lex);
 		//SEA.checkop(tmp, lex);
 		descript = false;
+
+		assigment = false;
+		exprIsNow = true;
 		expression();
+		assigment = true;
 		//elemOfPoliz e(costylek.s);
 		//pol.push(e);
 
@@ -273,7 +314,10 @@ void syntax_analyzer::expressionForWhile() { //poliz working
 		precalc.expr.clear();
 	}
 
-	pol.pol.push_back(ratioOper);
+	if (ratioOper != "NONE") {
+		pol.push(ratioOper);
+		ratioOper = "NONE";
+	}
 }
 void syntax_analyzer::expression_1() {
 
@@ -321,7 +365,7 @@ void syntax_analyzer::expression_1ForWhile() {
 	}  else {
 		//	expression_1(); Это ,хоть и по грамматике, все-таки лишнее. С этим будет бесконечный цикл
 		//precalc.expr.push_back(lex); //КОСТЫЛЬ //теперь почему-то без него легче
-		simple_expression();
+		simple_expressionWhile();
 		pol.push(precalc.expr);
 		precalc.expr.clear();
 
@@ -329,12 +373,26 @@ void syntax_analyzer::expression_1ForWhile() {
 		ratio_operation();
 		//getc(lex);
 
-		simple_expression();
+		simple_expressionWhile();
 		if(!precalc.expr.empty()&&precalc.expr.back().s==")") precalc.expr.pop_back();
 	}
 }
 
+void syntax_analyzer::simple_expressionWhile() {
+	simpleExpr = true;
+	terminal();
+	precalc.expr.pop_back();
 
+	while (lex.s == "+" || lex.s == "-" || lex.s == "||") {
+		addition_operation();
+		//getc(lex);
+
+		terminal();
+		//getc(lex);
+	}
+
+	simpleExpr = false;
+}
 
 void syntax_analyzer::ratio_operation() {
 	if (lex.s == "!=" || lex.s == "<" || lex.s == ">" || lex.s == "==" || lex.s == "<=" || lex.s == ">=") {
@@ -358,6 +416,8 @@ void syntax_analyzer::ratio_operation() {
 	//getc(lex); //FLAG
 }
 void syntax_analyzer::simple_expression() { //poliz working
+	 
+	simpleExpr = true;
 	terminal();
 
 	while (lex.s == "+" || lex.s == "-" || lex.s == "||") {
@@ -368,6 +428,7 @@ void syntax_analyzer::simple_expression() { //poliz working
 		//getc(lex);
 	}
 
+	simpleExpr = false;
 }
 void syntax_analyzer::terminal() { //poliz working
 	atom_1();
@@ -420,7 +481,9 @@ void syntax_analyzer::atom() { //poliz working
 
 	} else {
 		if (lex.t == IDENT) {
-			name();
+			if (!simpleExpr) name();
+			else
+				nameForExpr();
 			//getc(lex);// или не здесь, а перед инк. // ЭТО БЫЛО У ОЛИ. У ЮРЫ НЕ БЫЛО //если убрать, то работает (by Yura)
 			if (lex.s == ";")return;// expression must be finished for this time
 		} else
@@ -517,9 +580,11 @@ void syntax_analyzer::bool_value() {
 			throw(Error("bool value expected", lex.line));
 
 	if (lex.s == "true")
-		precalc.expr.back().s = "1";
+		precalc.expr.push_back(Lexeme(CONST, "1"));
+		//precalc.expr.back().s = "1";
 	else
-		precalc.expr.back().s = "0";
+		precalc.expr.push_back(Lexeme(CONST, "0"));
+		//precalc.expr.back().s = "0";
 
 	getc(lex);
 }
@@ -557,7 +622,7 @@ void syntax_analyzer::element() {//poliz working here
 	} else if (lex.s == ">>") {
 		getc(lex);
 		//pol.push(Ident(lex.s));
-		name();
+		nameIn();
 
 		pol.push(string(">>"));
 	} else throw(Error("<< or >> expected", lex.line));
@@ -754,10 +819,6 @@ void syntax_analyzer::cfor_operator(int& indexOfAdressOfExitOfFor) { //dangeous 
 
 		pol.pol[indexOfAdressOfElseOfFor] = (int) pol.pol.size();
 	} else {
-		expression();
-		if (lex.s != ";")throw(Error("; expected", lex.line));
-
-		getc(lex);
 		pushExprInPol = true;
 		expression(); //условие
 
@@ -767,9 +828,11 @@ void syntax_analyzer::cfor_operator(int& indexOfAdressOfExitOfFor) { //dangeous 
 		elemOfPoliz e(elemOfPoliz::RETRANS);
 		pol.push(e);
 
-		int indexOfStartOfFor= (int) pol.pol.size();
+		int indexOfStartOfFor = (int) pol.pol.size();
 
-		pol.push(pol.pol[(int) pol.pol.size() - 3]); //добавляю условие повторно для выхода, а не для элза
+		pol.push(pol.pol[(int) pol.pol.size() - 5]); //добавляю условие повторно для выхода, а не для элза
+		pol.push(pol.pol[(int) pol.pol.size() - 5]); //добавляю условие повторно для выхода, а не для элза
+		pol.push(pol.pol[(int) pol.pol.size() - 5]); //добавляю условие повторно для выхода, а не для элза
 
 		indexOfAdressOfExitOfFor = (int) pol.pol.size();
 		pol.push(-1);
@@ -781,17 +844,25 @@ void syntax_analyzer::cfor_operator(int& indexOfAdressOfExitOfFor) { //dangeous 
 
 		pushExprInPol = false;
 		expression();
-		vector<Lexeme> operOfFor = precalc.expr;
-		precalc.expr.clear();
+		stack<elemOfPoliz> operOfFor;
+
+		for (size_t i = 0; i < 3; i++) {
+			operOfFor.push(pol.pol.back());
+			pol.pol.pop_back();
+		}
+
 		pushExprInPol = true;
 
 		if (lex.s != ")")throw(Error(") expected", lex.line));
 		getc(lex);
 		Operator();
 
-		pol.push(operOfFor);
-		pol.push(indexOfStartOfFor);
+		for (size_t i = 0; i < 3; i++) {
+			pol.pol.push_back(operOfFor.top());
+			operOfFor.pop();
+		}
 
+		pol.push(indexOfStartOfFor);
 		elemOfPoliz ee(elemOfPoliz::TRANS);
 		pol.push(ee);
 
